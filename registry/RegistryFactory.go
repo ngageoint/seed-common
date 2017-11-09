@@ -3,10 +3,10 @@ package registry
 import (
 	"strings"
 
-	"github.com/ngageoint/seed-cli/registry/containeryard"
-	"github.com/ngageoint/seed-cli/registry/dockerhub"
-	"github.com/ngageoint/seed-cli/registry/v2"
-	"github.com/ngageoint/seed-cli/objects"
+	"github.com/JohnPTobe/seed-common/registry/containeryard"
+	"github.com/JohnPTobe/seed-common/registry/dockerhub"
+	"github.com/JohnPTobe/seed-common/registry/v2"
+	"github.com/JohnPTobe/seed-common/objects"
 )
 
 type RepositoryRegistry interface {

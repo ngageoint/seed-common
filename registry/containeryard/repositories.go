@@ -1,6 +1,6 @@
 package containeryard
 
-import "github.com/ngageoint/seed-cli/objects"
+import "github.com/JohnPTobe/seed-common/objects"
 
 type Response struct {
 	Results Results

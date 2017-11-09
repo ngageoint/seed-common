@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ngageoint/seed-cli/constants"
+	"github.com/JohnPTobe/seed-common/constants"
 )
 
 //CheckSudo Checks error for telltale sign seed command should be run as sudo

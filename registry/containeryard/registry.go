@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/ngageoint/seed-cli/util"
+	"github.com/JohnPTobe/seed-common/util"
 )
 
 //ContainerYardRegistry type representing a Container Yard registry
