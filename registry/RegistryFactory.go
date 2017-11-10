@@ -3,10 +3,10 @@ package registry
 import (
 	"strings"
 
+	"github.com/JohnPTobe/seed-common/objects"
 	"github.com/JohnPTobe/seed-common/registry/containeryard"
 	"github.com/JohnPTobe/seed-common/registry/dockerhub"
 	"github.com/JohnPTobe/seed-common/registry/v2"
-	"github.com/JohnPTobe/seed-common/objects"
 )
 
 type RepositoryRegistry interface {

@@ -28,7 +28,7 @@ func New(registryUrl string) (*ContainerYardRegistry, error) {
 	registry := &ContainerYardRegistry{
 		URL:    url,
 		Client: &http.Client{},
-		Print: util.PrintUtil,
+		Print:  util.PrintUtil,
 	}
 
 	return registry, nil
