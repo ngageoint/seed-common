@@ -1,10 +1,10 @@
 package util
 
 import (
-	"testing"
+	"fmt"
 	"os"
 	"strings"
-	"fmt"
+	"testing"
 )
 
 func init() {
@@ -14,9 +14,9 @@ func init() {
 func TestGetFullPath(t *testing.T) {
 	curDir, _ := os.Getwd()
 	cases := []struct {
-		file         string
-		dir string
-		ending           string
+		file     string
+		dir      string
+		ending   string
 		errorMsg string
 	}{
 		{"file.go", ".", curDir + "/file.go", ""},
@@ -34,7 +34,7 @@ func TestGetFullPath(t *testing.T) {
 
 func TestDockerfileBaseRegistry(t *testing.T) {
 	cases := []struct {
-		dir         string
+		dir      string
 		registry string
 		errorMsg string
 	}{
@@ -61,9 +61,9 @@ func TestDockerfileBaseRegistry(t *testing.T) {
 
 func TestReadLinesFromFile(t *testing.T) {
 	cases := []struct {
-		dir         string
+		dir       string
 		lineCount int
-		errorMsg string
+		errorMsg  string
 	}{
 		{".", 0, "no such file or directory"},
 		{"../testdata/complete", 101, ""},
