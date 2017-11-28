@@ -22,7 +22,7 @@ func (r *ContainerYardRegistry) Name() string {
 //New creates a new docker hub registry from the given URL
 func New(registryUrl string) (*ContainerYardRegistry, error) {
 	if util.PrintUtil == nil {
-		util.InitPrinter(false)
+		util.InitPrinter(util.PrintErr)
 	}
 	url := strings.TrimSuffix(registryUrl, "/")
 	registry := &ContainerYardRegistry{

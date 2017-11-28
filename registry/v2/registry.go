@@ -17,7 +17,7 @@ type v2registry struct {
 
 func New(url, username, password string) (*v2registry, error) {
 	if util.PrintUtil == nil {
-		util.InitPrinter(false)
+		util.InitPrinter(util.PrintErr)
 	}
 
 	reg, err := registry.New(url, username, password)

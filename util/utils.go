@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"time"
+	"log"
 )
 
 type PrintCallback func(format string, args ...interface{})
@@ -16,6 +17,13 @@ func PrintErr(format string, args ...interface{}) {
 }
 
 /*
+ * Print messages to log
+ */
+func PrintLog(format string, args ...interface{}) {
+	log.Printf(format, args...)
+}
+
+/*
  * Discard messages silently.
  */
 func Quiet(format string, args ...interface{}) {
@@ -24,11 +32,8 @@ func Quiet(format string, args ...interface{}) {
 
 var PrintUtil PrintCallback
 
-func InitPrinter(quiet bool) {
-	PrintUtil = PrintErr
-	if quiet {
-		PrintUtil = Quiet
-	}
+func InitPrinter(callback PrintCallback) {
+	PrintUtil = callback
 }
 
 //TimeTrack function for timing function calls. Usage:
