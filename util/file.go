@@ -13,29 +13,28 @@ import (
 // paths and verifes non-relative paths
 // Validate path for file existance??
 func GetFullPath(rFile, directory string) string {
-
-	// Normalize
-	rFile = filepath.Clean(filepath.ToSlash(rFile))
-
 	if !filepath.IsAbs(rFile) {
 
-		// Expand relative file path
-		// Define the current working directory
-		curDir, _ := os.Getwd()
+		// Test relative to given directory
+		if directory != "." && directory != "" {
 
-		// Test relative to current directory
-		dir := filepath.Join(curDir, rFile)
-		if _, err := os.Stat(dir); !os.IsNotExist(err) {
-			rFile = filepath.Clean(dir)
+			var err error
+			path := filepath.Join(directory, rFile)
+			path, err = filepath.Abs(filepath.ToSlash(path))
 
-			// see if parent directory exists. If so, assume this directory will be created
-		} else if _, err := os.Stat(filepath.Dir(dir)); !os.IsNotExist(err) {
-			rFile = filepath.Clean(dir)
-		}
+			// see if resulting path exists
+			if _, err = os.Stat(path); !os.IsNotExist(err) {
+				rFile = path
 
-		// Test relative to working directory
-		if directory != "." {
-			dir = filepath.Join(directory, rFile)
+				// see if parent directory exists. If so, assume this directory will be created
+			} else if _, err := os.Stat(filepath.Dir(path)); !os.IsNotExist(err) {
+				rFile = path
+			}
+
+		} else {
+			// Test relative to current directory
+			curDir, _ := os.Getwd()
+			dir := filepath.Join(curDir, rFile)
 			if _, err := os.Stat(dir); !os.IsNotExist(err) {
 				rFile = filepath.Clean(dir)
 
@@ -73,11 +72,12 @@ func DockerfileBaseRegistry(dir string) (string, error) {
 		PrintUtil("ERROR: %s cannot be found.\n",
 			dockerfile)
 		PrintUtil("Make sure you have specified the correct directory.\n")
+
+		return "", err
 	}
 
 	file, err := os.Open(dockerfile)
 	if err == nil {
-
 		// make sure it gets closed
 		defer file.Close()
 
