@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/JohnPTobe/seed-common/constants"
+	"github.com/JohnPTobe/seed-common/objects"
 )
 
 //CheckSudo Checks error for telltale sign seed command should be run as sudo
@@ -348,13 +349,9 @@ func GetSeedManifestFromImage(imageName string) (string, error) {
 	}
 
 	// un-escape special characters
-	seedStr := string(seedBytes)
-	seedStr = strings.Replace(seedStr, "\\\"", "\"", -1)
-	seedStr = strings.Replace(seedStr, "\\\"", "\"", -1) //extra replace to fix extra back slashes added by docker build command
-	seedStr = strings.Replace(seedStr, "\\$", "$", -1)
-	seedStr = strings.Replace(seedStr, "\\/", "/", -1)
-	seedStr = strings.TrimSpace(seedStr)
-	seedStr = strings.TrimSuffix(strings.TrimPrefix(seedStr, "'\""), "\"'")
+	label := string(seedBytes)
+
+	seedStr := objects.UnescapeManifestLabel(label)
 
 	return seedStr, err
 }
