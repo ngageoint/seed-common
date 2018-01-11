@@ -101,6 +101,7 @@ func (registry *ContainerYardRegistry) ImagesWithManifests(org string) ([]object
 			for name, value := range image.Labels {
 				if name == "com.ngageoint.seed.manifest" {
 					manifestLabel = objects.UnescapeManifestLabel(value)
+					manifestLabel = manifestLabel[1:len(manifestLabel)-1]
 				}
 			}
 			for tagName, _ := range image.Tags {
@@ -114,6 +115,7 @@ func (registry *ContainerYardRegistry) ImagesWithManifests(org string) ([]object
 			for name, value := range image.Labels {
 				if name == "com.ngageoint.seed.manifest" {
 					manifestLabel = objects.UnescapeManifestLabel(value)
+					manifestLabel = manifestLabel[1:len(manifestLabel)-1]
 				}
 			}
 			for tagName, _ := range image.Tags {
