@@ -13,7 +13,6 @@ import (
 	"time"
 
 	"github.com/JohnPTobe/seed-common/constants"
-	"github.com/JohnPTobe/seed-common/objects"
 )
 
 //CheckSudo Checks error for telltale sign seed command should be run as sudo
@@ -351,7 +350,7 @@ func GetSeedManifestFromImage(imageName string) (string, error) {
 	// un-escape special characters
 	label := string(seedBytes)
 
-	seedStr := objects.UnescapeManifestLabel(label)
+	seedStr := UnescapeManifestLabel(label)
 
 	return seedStr, err
 }

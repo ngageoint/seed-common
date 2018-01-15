@@ -1,6 +1,9 @@
 package containeryard
 
-import "github.com/JohnPTobe/seed-common/objects"
+import (
+	"github.com/JohnPTobe/seed-common/objects"
+	"github.com/JohnPTobe/seed-common/util"
+)
 
 type Response struct {
 	Results Results
@@ -100,7 +103,7 @@ func (registry *ContainerYardRegistry) ImagesWithManifests(org string) ([]object
 			manifestLabel := ""
 			for name, value := range image.Labels {
 				if name == "com.ngageoint.seed.manifest" {
-					manifestLabel = objects.UnescapeManifestLabel(value)
+					manifestLabel = util.UnescapeManifestLabel(value)
 					manifestLabel = manifestLabel[1:len(manifestLabel)-1]
 				}
 			}
@@ -114,7 +117,7 @@ func (registry *ContainerYardRegistry) ImagesWithManifests(org string) ([]object
 			manifestLabel := ""
 			for name, value := range image.Labels {
 				if name == "com.ngageoint.seed.manifest" {
-					manifestLabel = objects.UnescapeManifestLabel(value)
+					manifestLabel = util.UnescapeManifestLabel(value)
 					manifestLabel = manifestLabel[1:len(manifestLabel)-1]
 				}
 			}
