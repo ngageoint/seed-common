@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/JohnPTobe/seed-common/constants"
+	"github.com/ngageoint/seed-common/constants"
 )
 
 //GetFullPath returns the full path of the given file. This expands relative file

@@ -9,8 +9,8 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/JohnPTobe/seed-common/constants"
-	"github.com/JohnPTobe/seed-common/util"
+	"github.com/ngageoint/seed-common/constants"
+	"github.com/ngageoint/seed-common/util"
 )
 
 type Image struct {

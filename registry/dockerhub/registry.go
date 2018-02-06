@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/JohnPTobe/seed-common/constants"
-	"github.com/JohnPTobe/seed-common/util"
+	"github.com/ngageoint/seed-common/constants"
+	"github.com/ngageoint/seed-common/util"
 )
 
 //DockerHubRegistry type representing a Docker Hub registry
