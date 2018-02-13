@@ -107,6 +107,9 @@ func (registry *ContainerYardRegistry) ImagesWithManifests(org string) ([]object
 					manifestLabel = manifestLabel[1:len(manifestLabel)-1]
 				}
 			}
+			if manifestLabel == "" {
+				continue
+			}
 			for tagName, _ := range image.Tags {
 				imageStr := repoName + ":" + tagName
 				img := objects.Image{Name: imageStr, Registry: registry.URL, Org: org, Manifest: manifestLabel}
@@ -120,6 +123,9 @@ func (registry *ContainerYardRegistry) ImagesWithManifests(org string) ([]object
 					manifestLabel = util.UnescapeManifestLabel(value)
 					manifestLabel = manifestLabel[1:len(manifestLabel)-1]
 				}
+			}
+			if manifestLabel == "" {
+				continue
 			}
 			for tagName, _ := range image.Tags {
 				imageStr := repoName + ":" + tagName
