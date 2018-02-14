@@ -76,25 +76,42 @@ func (r *v2registry) ImagesWithManifests(org string) ([]objects.Image, error) {
 
 	images := []objects.Image{}
 
+	for _, imgstr := range imageNames {
+		manifest, err := r.GetImageManifest(imgstr, org)
+		if err != nil {
+			//skip images with empty manifests
+			continue
+		}
+
+		imageStruct := objects.Image{Name: imgstr, Registry: r.r.URL, Org: org, Manifest: manifest}
+		images = append(images, imageStruct)
+	}
+
+	return images, err
+}
+
+func (r *v2registry) GetImageManifest(image, tag string) (string, error) {
+	//remove http(s) prefix for docker pull command
 	url := strings.Replace(r.r.URL, "http://", "", 1)
 	url = strings.Replace(url, "https://", "", 1)
 	username := r.Username
 	password := r.Password
 
-	for _, imgstr := range imageNames {
-		manifest := ""
-		//TODO: find better, lightweight way to get manifest on low side
-		imageName, err := util.DockerPull(imgstr, url, org, username, password)
+	digest, err := r.r.ManifestDigest(image, tag)
+	if err == nil {
+		resp, err := r.r.DownloadLayer(image, digest)
 		if err == nil {
-			manifest, err = util.GetSeedManifestFromImage(imageName)
-		}
-		if err != nil {
-			r.Print("ERROR: Could not get manifest: %s\n", err.Error())
-		}
 
-		imageStruct := objects.Image{Name: imgstr, Registry: url, Org: org, Manifest: manifest}
-		images = append(images, imageStruct)
+		}
 	}
-
-	return images, err
+	manifest := ""
+	//TODO: find better, lightweight way to get manifest on low side
+	imageName, err := util.DockerPull(image, url, org, username, password)
+	if err == nil {
+		manifest, err = util.GetSeedManifestFromImage(imageName)
+	}
+	if err != nil {
+		r.Print("ERROR: Could not get manifest: %s\n", err.Error())
+	}
+	return manifest, err
 }

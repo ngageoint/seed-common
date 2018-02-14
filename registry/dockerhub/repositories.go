@@ -5,6 +5,7 @@ import (
 
 	"github.com/ngageoint/seed-common/objects"
 	"github.com/ngageoint/seed-common/util"
+	"github.com/ngageoint/seed-common/registry/v2"
 )
 
 type repositoriesResponse struct {
@@ -107,19 +108,24 @@ func (registry *DockerHubRegistry) ImagesWithManifests(org string) ([]objects.Im
 	password := ""
 
 	for _, imgstr := range imageNames {
-		manifest := ""
-		//TODO: find better, lightweight way to get manifest on low side
-		imageName, err := util.DockerPull(imgstr, url, org, username, password)
-		if err == nil {
-			manifest, err = util.GetSeedManifestFromImage(imageName)
-		}
-		if err != nil {
-			registry.Print("ERROR: Could not get manifest: %s\n", err.Error())
-		}
+		manifest := GetImageManifest(imgstr, org)
 
 		imageStruct := objects.Image{Name: imgstr, Registry: url, Org: org, Manifest: manifest}
 		images = append(images, imageStruct)
 	}
 
 	return images, err
+}
+
+func (registry *DockerHubRegistry) GetImageManifest(image, org string) (string, error) {
+	manifest := ""
+	//TODO: find better, lightweight way to get manifest on low side
+	imageName, err := util.DockerPull(image, "docker.io", org, "", "")
+	if err == nil {
+		manifest, err = util.GetSeedManifestFromImage(imageName)
+	}
+	if err != nil {
+		registry.Print("ERROR: Could not get manifest: %s\n", err.Error())
+	}
+	return manifest, err
 }

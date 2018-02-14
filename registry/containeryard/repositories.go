@@ -3,6 +3,7 @@ package containeryard
 import (
 	"github.com/ngageoint/seed-common/objects"
 	"github.com/ngageoint/seed-common/util"
+	"strings"
 )
 
 type Response struct {
@@ -135,4 +136,27 @@ func (registry *ContainerYardRegistry) ImagesWithManifests(org string) ([]object
 		}
 	}
 	return repos, nil
+}
+
+func (registry *ContainerYardRegistry) GetImageManifest(image, tag string) (string, error) {
+	//remove http(s) prefix for docker pull command
+	url := strings.Replace(registry.URL, "http://", "", 1)
+	url = strings.Replace(url, "https://", "", 1)
+	username := registry.Username
+	password := registry.Password
+
+	manifest := ""
+	digest, err := registry.v2Base.ManifestDigest(image, tag)
+	if err == nil {
+		resp, err := r.r.DownloadLayer(image, digest)
+	}
+	//TODO: find better, lightweight way to get manifest on low side
+	imageName, err := util.DockerPull(image, url, org, username, password)
+	if err == nil {
+		manifest, err = util.GetSeedManifestFromImage(imageName)
+	}
+	if err != nil {
+		registry.Print("ERROR: Could not get manifest: %s\n", err.Error())
+	}
+	return manifest, err
 }

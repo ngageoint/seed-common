@@ -16,6 +16,7 @@ type RepositoryRegistry interface {
 	Tags(repository, org string) ([]string, error)
 	Images(org string) ([]string, error)
 	ImagesWithManifests(org string) ([]objects.Image, error)
+	GetImageManifest(image, org string) (string, error)
 }
 
 type RepoRegistryFactory func(url, username, password string) (RepositoryRegistry, error)
@@ -45,11 +46,11 @@ func NewDockerHubRegistry(url, username, password string) (RepositoryRegistry, e
 }
 
 func NewContainerYardRegistry(url, username, password string) (RepositoryRegistry, error) {
-	yard, err := containeryard.New(url)
+	yard, err := containeryard.New(url, username, password)
 	if err != nil {
 		if strings.Contains(url, "https://") {
 			httpFallback := strings.Replace(url, "https://", "http://", 1)
-			yard, err = containeryard.New(httpFallback)
+			yard, err = containeryard.New(httpFallback, username, password)
 		}
 	}
 
