@@ -5,7 +5,6 @@ import (
 
 	"github.com/ngageoint/seed-common/objects"
 	"github.com/ngageoint/seed-common/util"
-	"github.com/ngageoint/seed-common/registry/v2"
 )
 
 type repositoriesResponse struct {
@@ -21,7 +20,8 @@ type Result struct {
 }
 
 //Repositories Returns seed repositories for the given user/organization
-func (registry *DockerHubRegistry) Repositories(user string) ([]string, error) {
+func (registry *DockerHubRegistry) Repositories() ([]string, error) {
+	user := registry.Org
 	url := registry.url("/v2/repositories/%s/", user)
 	repos := make([]string, 0, 10)
 	var err error //We create this here, otherwise url will be rescoped with :=
@@ -43,7 +43,8 @@ func (registry *DockerHubRegistry) Repositories(user string) ([]string, error) {
 }
 
 //Tags Returns tags for a given user/organization and repository
-func (registry *DockerHubRegistry) Tags(user, repository string) ([]string, error) {
+func (registry *DockerHubRegistry) Tags(repository string) ([]string, error) {
+	user := registry.Org
 	url := registry.url("/v2/repositories/%s/%s/tags", user, repository)
 	tags := make([]string, 0, 10)
 	var err error //We create this here, otherwise url will be rescoped with :=
@@ -63,8 +64,8 @@ func (registry *DockerHubRegistry) Tags(user, repository string) ([]string, erro
 
 //Images returns seed images for a given user/repository.  It will grab all of the seed repositories and combine them
 //with any tags it can find to build a list of images.
-func (registry *DockerHubRegistry) Images(user string) ([]string, error) {
-	url := registry.url("/v2/repositories/%s/", user)
+func (registry *DockerHubRegistry) Images() ([]string, error) {
+	url := registry.url("/v2/repositories/%s/", registry.Org)
 	registry.Print("Searching %s for Seed images...\n", url)
 	repos := make([]string, 0, 10)
 	var err error //We create this here, otherwise url will be rescoped with :=
@@ -77,7 +78,7 @@ func (registry *DockerHubRegistry) Images(user string) ([]string, error) {
 				continue
 			}
 			// Add all tags if found
-			if rs, _ := registry.Tags(user, r.Name); len(rs) > 0 {
+			if rs, _ := registry.Tags(r.Name); len(rs) > 0 {
 				for _, tag := range rs {
 					img := r.Name + ":" + tag
 					repos = append(repos, img)
@@ -94,8 +95,8 @@ func (registry *DockerHubRegistry) Images(user string) ([]string, error) {
 	return repos, nil
 }
 
-func (registry *DockerHubRegistry) ImagesWithManifests(org string) ([]objects.Image, error) {
-	imageNames, err := registry.Images(org)
+func (registry *DockerHubRegistry) ImagesWithManifests() ([]objects.Image, error) {
+	imageNames, err := registry.Images()
 
 	if err != nil {
 		return nil, err
@@ -104,23 +105,28 @@ func (registry *DockerHubRegistry) ImagesWithManifests(org string) ([]objects.Im
 	images := []objects.Image{}
 
 	url := "docker.io"
-	username := ""
-	password := ""
 
+	manifest := ""
 	for _, imgstr := range imageNames {
-		manifest := GetImageManifest(imgstr, org)
+		temp := strings.Split(imgstr, ":")
+		if len(temp) != 2 {
+			registry.Print("ERROR: Invalid seed name: %s. Unable to split into name/tag pair\n", imgstr)
+			continue
+		}
+		manifest, err = registry.GetImageManifest(temp[0], temp[1])
 
-		imageStruct := objects.Image{Name: imgstr, Registry: url, Org: org, Manifest: manifest}
+		imageStruct := objects.Image{Name: imgstr, Registry: url, Org: registry.Org, Manifest: manifest}
 		images = append(images, imageStruct)
 	}
 
 	return images, err
 }
 
-func (registry *DockerHubRegistry) GetImageManifest(image, org string) (string, error) {
+func (registry *DockerHubRegistry) GetImageManifest(repoName, tag string) (string, error) {
 	manifest := ""
 	//TODO: find better, lightweight way to get manifest on low side
-	imageName, err := util.DockerPull(image, "docker.io", org, "", "")
+	image := repoName + ":" + tag
+	imageName, err := util.DockerPull(image, "docker.io", registry.Org, "", "")
 	if err == nil {
 		manifest, err = util.GetSeedManifestFromImage(imageName)
 	}

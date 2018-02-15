@@ -13,6 +13,7 @@ import (
 type ContainerYardRegistry struct {
 	URL    string
 	Client *http.Client
+	Org      string
 	Username string
 	Password string
 	v2Base *registry.Registry
@@ -24,7 +25,7 @@ func (r *ContainerYardRegistry) Name() string {
 }
 
 //New creates a new docker hub registry from the given URL
-func New(registryUrl, username, password string) (*ContainerYardRegistry, error) {
+func New(registryUrl, org, username, password string) (*ContainerYardRegistry, error) {
 	if util.PrintUtil == nil {
 		util.InitPrinter(util.PrintErr)
 	}
@@ -34,6 +35,7 @@ func New(registryUrl, username, password string) (*ContainerYardRegistry, error)
 	registry := &ContainerYardRegistry{
 		URL:    url,
 		Client: &http.Client{},
+		Org:      org,
 		Username: username,
 		Password: password,
 		v2Base: reg,

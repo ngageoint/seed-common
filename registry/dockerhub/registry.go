@@ -14,11 +14,12 @@ import (
 type DockerHubRegistry struct {
 	URL    string
 	Client *http.Client
+	Org    string
 	Print  util.PrintCallback
 }
 
 //New creates a new docker hub registry from the given URL
-func New(registryUrl string) (*DockerHubRegistry, error) {
+func New(registryUrl, org string) (*DockerHubRegistry, error) {
 	if util.PrintUtil == nil {
 		util.InitPrinter(util.PrintErr)
 	}
@@ -26,6 +27,7 @@ func New(registryUrl string) (*DockerHubRegistry, error) {
 	registry := &DockerHubRegistry{
 		URL:    url,
 		Client: &http.Client{},
+		Org:    org,
 		Print:  util.PrintUtil,
 	}
 

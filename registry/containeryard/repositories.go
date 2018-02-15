@@ -38,7 +38,7 @@ type Result struct {
 	Name string
 }
 
-func (registry *ContainerYardRegistry) Repositories(org string) ([]string, error) {
+func (registry *ContainerYardRegistry) Repositories() ([]string, error) {
 	url := registry.url("/search?q=%s&t=json", "-seed")
 	repos := make([]string, 0, 10)
 	var err error //We create this here, otherwise url will be rescoped with :=
@@ -57,7 +57,7 @@ func (registry *ContainerYardRegistry) Repositories(org string) ([]string, error
 
 }
 
-func (registry *ContainerYardRegistry) Tags(repository, org string) ([]string, error) {
+func (registry *ContainerYardRegistry) Tags(repository string) ([]string, error) {
 	url := registry.url("/search?q=%s&t=json", repository)
 	registry.Print("Searching %s for Seed images...\n", url)
 	tags := make([]string, 0, 10)
@@ -81,8 +81,8 @@ func (registry *ContainerYardRegistry) Tags(repository, org string) ([]string, e
 }
 
 //Images returns all seed images on the registry
-func (registry *ContainerYardRegistry) Images(org string) ([]string, error) {
-	images, err := registry.ImagesWithManifests(org)
+func (registry *ContainerYardRegistry) Images() ([]string, error) {
+	images, err := registry.ImagesWithManifests()
 	imageStrs := []string{}
 	for _, img := range images {
 		imageStrs = append(imageStrs, img.Name)
@@ -91,7 +91,7 @@ func (registry *ContainerYardRegistry) Images(org string) ([]string, error) {
 }
 
 //Images returns all seed images on the registry along with their manifests, if available
-func (registry *ContainerYardRegistry) ImagesWithManifests(org string) ([]objects.Image, error) {
+func (registry *ContainerYardRegistry) ImagesWithManifests() ([]objects.Image, error) {
 	//TODO: Update after container yard generates unique manifests for each tag
 	url := registry.url("/search?q=%s&t=json", "-seed")
 	repos := make([]objects.Image, 0, 10)
@@ -112,8 +112,9 @@ func (registry *ContainerYardRegistry) ImagesWithManifests(org string) ([]object
 				continue
 			}
 			for tagName, _ := range image.Tags {
+				manifestLabel, err = registry.GetImageManifest(repoName, tagName)
 				imageStr := repoName + ":" + tagName
-				img := objects.Image{Name: imageStr, Registry: registry.URL, Org: org, Manifest: manifestLabel}
+				img := objects.Image{Name: imageStr, Registry: registry.URL, Org: registry.Org, Manifest: manifestLabel}
 				repos = append(repos, img)
 			}
 		}
@@ -129,8 +130,9 @@ func (registry *ContainerYardRegistry) ImagesWithManifests(org string) ([]object
 				continue
 			}
 			for tagName, _ := range image.Tags {
+				manifestLabel, err = registry.GetImageManifest(repoName, tagName)
 				imageStr := repoName + ":" + tagName
-				img := objects.Image{Name: imageStr, Registry: registry.URL, Org: org, Manifest: manifestLabel}
+				img := objects.Image{Name: imageStr, Registry: registry.URL, Org: registry.Org, Manifest: manifestLabel}
 				repos = append(repos, img)
 			}
 		}
@@ -138,25 +140,35 @@ func (registry *ContainerYardRegistry) ImagesWithManifests(org string) ([]object
 	return repos, nil
 }
 
-func (registry *ContainerYardRegistry) GetImageManifest(image, tag string) (string, error) {
+func (registry *ContainerYardRegistry) GetImageManifest(repoName, tag string) (string, error) {
 	//remove http(s) prefix for docker pull command
 	url := strings.Replace(registry.URL, "http://", "", 1)
 	url = strings.Replace(url, "https://", "", 1)
-	username := registry.Username
-	password := registry.Password
+	//username := registry.Username
+	//password := registry.Password
 
 	manifest := ""
-	digest, err := registry.v2Base.ManifestDigest(image, tag)
+	digest, err := registry.v2Base.ManifestDigest(repoName, tag)
 	if err == nil {
-		resp, err := r.r.DownloadLayer(image, digest)
+		resp, err := registry.v2Base.DownloadLayer(repoName, digest)
+		if err == nil {
+			manifest, err = objects.GetSeedManifestFromBlob(resp)
+		}
 	}
-	//TODO: find better, lightweight way to get manifest on low side
-	imageName, err := util.DockerPull(image, url, org, username, password)
-	if err == nil {
-		manifest, err = util.GetSeedManifestFromImage(imageName)
-	}
-	if err != nil {
-		registry.Print("ERROR: Could not get manifest: %s\n", err.Error())
-	}
+
+	// falling back to docker pull may result in lots of large pulls for non-seed images that somehow snuck through,
+	// always slowing down scans
+	/*if err != nil {
+		// fallback to docker pull
+		registry.Print("ERROR: Could not get seed manifest from v2 API: %s\n", err.Error())
+		registry.Print("Falling back to docker pull\n")
+		imageName, err := util.DockerPull(image, url, r.Org, username, password)
+		if err == nil {
+			manifest, err = util.GetSeedManifestFromImage(imageName)
+		}
+		if err != nil {
+			registry.Print("ERROR: Could not get manifest: %s\n", err.Error())
+		}
+	}*/
 	return manifest, err
 }

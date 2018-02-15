@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -317,4 +318,54 @@ func BuildImageName(seed *Seed) string {
 	buffer.WriteString(seed.Job.PackageVersion)
 
 	return buffer.String()
+}
+
+func GetSeedManifestFromBlob(resp io.ReadCloser) (string, error) {
+	defer resp.Close()
+	body, err := ioutil.ReadAll(resp)
+	if err != nil {
+		return "", err
+	}
+
+	// filter json blob through jq
+	cmdStr := fmt.Sprintf("echo %s | jq -r '.container_Config.Labels.\"com.ngageoint.seed.manifest\"'", string(body))
+	jqArgs := []string{string(body), "|", "jq", "-r", ".container_Config.Labels"}
+	jqCmd := exec.Command("echo", jqArgs...)
+
+	errPipe, err := jqCmd.StderrPipe()
+	if err != nil {
+		util.PrintUtil("ERROR: error attaching to jq command stderr. %s\n", err.Error())
+	}
+
+	// Attach stdout pipe
+	outPipe, err := jqCmd.StdoutPipe()
+	if err != nil {
+		util.PrintUtil("ERROR: error attaching to jq command stdout. %s\n", err.Error())
+	}
+
+	// Run docker inspect
+	if err = jqCmd.Start(); err != nil {
+		util.PrintUtil("ERROR: error executing jq %s. %s\n", cmdStr, err.Error())
+	}
+
+	// Print out any std out
+	seedBytes, err := ioutil.ReadAll(outPipe)
+	if err != nil {
+		fmt.Fprintf(os.Stdout, "ERROR: Error retrieving docker %s stdout.\n%s\n",
+			cmdStr, err.Error())
+	}
+
+	// check for errors on stderr
+	slurperr, _ := ioutil.ReadAll(errPipe)
+	if string(slurperr) != "" {
+		util.PrintUtil("ERROR: Error executing %s:\n%s\n",
+			cmdStr, string(slurperr))
+	}
+
+	// un-escape special characters
+	label := string(seedBytes)
+
+	seedStr := util.UnescapeManifestLabel(label)
+
+	return seedStr, err
 }
