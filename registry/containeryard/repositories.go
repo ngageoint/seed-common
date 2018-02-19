@@ -146,9 +146,9 @@ func (registry *ContainerYardRegistry) GetImageManifest(repoName, tag string) (s
 	//password := registry.Password
 
 	manifest := ""
-	digest, err := registry.v2Base.ManifestDigest(repoName, tag)
+	mv2, err := registry.v2Base.ManifestV2(repoName, tag)
 	if err == nil {
-		resp, err := registry.v2Base.DownloadLayer(repoName, digest)
+		resp, err := registry.v2Base.DownloadLayer(repoName, mv2.Config.Digest)
 		if err == nil {
 			manifest, err = objects.GetSeedManifestFromBlob(resp)
 		}
