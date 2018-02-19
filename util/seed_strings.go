@@ -12,5 +12,9 @@ func UnescapeManifestLabel(label string) string {
 	seedStr = strings.TrimSpace(seedStr)
 	seedStr = strings.TrimSuffix(strings.TrimPrefix(seedStr, "'\""), "\"'")
 
+	if seedStr[0] == '"' {  //fix quoted string
+		seedStr = seedStr[1:len(seedStr)-1]
+	}
+
 	return seedStr
 }

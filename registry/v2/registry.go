@@ -99,15 +99,15 @@ func (r *v2registry) ImagesWithManifests() ([]objects.Image, error) {
 
 func (r *v2registry) GetImageManifest(repoName, tag string) (string, error) {
 	//remove http(s) prefix for docker pull command
-	url := strings.Replace(r.r.URL, "http://", "", 1)
-	url = strings.Replace(url, "https://", "", 1)
+	//url := strings.Replace(r.r.URL, "http://", "", 1)
+	//url = strings.Replace(url, "https://", "", 1)
 	//username := r.Username
 	//password := r.Password
 
 	manifest := ""
-	digest, err := r.r.ManifestDigest(repoName, tag)
+	mv2, err := r.r.ManifestV2(repoName, tag)
 	if err == nil {
-		resp, err := r.r.DownloadLayer(repoName, digest)
+		resp, err := r.r.DownloadLayer(repoName, mv2.Config.Digest)
 		if err == nil {
 			manifest, err = objects.GetSeedManifestFromBlob(resp)
 		}

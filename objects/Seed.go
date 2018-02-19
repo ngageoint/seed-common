@@ -254,7 +254,7 @@ func SeedFromImageLabel(imageName string) Seed {
 	// Print out any std out
 	seedBytes, err := ioutil.ReadAll(outPipe)
 	if err != nil {
-		fmt.Fprintf(os.Stdout, "ERROR: Error retrieving docker %s stdout.\n%s\n",
+		util.PrintUtil("ERROR: Error retrieving docker %s stdout.\n%s\n",
 			cmdStr, err.Error())
 	}
 
@@ -320,17 +320,34 @@ func BuildImageName(seed *Seed) string {
 	return buffer.String()
 }
 
-func GetSeedManifestFromBlob(resp io.ReadCloser) (string, error) {
-	defer resp.Close()
-	body, err := ioutil.ReadAll(resp)
+func GetSeedManifestFromBlob(blob io.ReadCloser) (string, error) {
+	defer blob.Close()
+	body, err := ioutil.ReadAll(blob)
 	if err != nil {
 		return "", err
 	}
 
+	temp, err := ioutil.TempFile("", "blob-")
+	if err != nil {
+		util.PrintUtil("ERROR: Could not create temp file for json blob\n")
+		return "", err
+	}
+
+	//defer os.Remove(temp.Name())
+
+	if _, err := temp.Write(body); err != nil {
+		util.PrintUtil("ERROR: Could not write temp file for json blob\n")
+		return "", err
+	}
+	if err := temp.Close(); err != nil {
+		util.PrintUtil("ERROR: Could not close temp file for json blob\n")
+		return "", err
+	}
+
 	// filter json blob through jq
-	cmdStr := fmt.Sprintf("echo %s | jq -r '.container_Config.Labels.\"com.ngageoint.seed.manifest\"'", string(body))
-	jqArgs := []string{string(body), "|", "jq", "-r", ".container_Config.Labels"}
-	jqCmd := exec.Command("echo", jqArgs...)
+	cmdStr := fmt.Sprintf("jq -r '.container_config.Labels.\"com.ngageoint.seed.manifest\"' %s", temp.Name())
+	jqArgs := []string{"-r", ".container_config.Labels.\"com.ngageoint.seed.manifest\"", temp.Name()}
+	jqCmd := exec.Command("jq", jqArgs...)
 
 	errPipe, err := jqCmd.StderrPipe()
 	if err != nil {
@@ -351,7 +368,7 @@ func GetSeedManifestFromBlob(resp io.ReadCloser) (string, error) {
 	// Print out any std out
 	seedBytes, err := ioutil.ReadAll(outPipe)
 	if err != nil {
-		fmt.Fprintf(os.Stdout, "ERROR: Error retrieving docker %s stdout.\n%s\n",
+		util.PrintUtil("ERROR: Error retrieving docker %s stdout.\n%s\n",
 			cmdStr, err.Error())
 	}
 
@@ -365,7 +382,11 @@ func GetSeedManifestFromBlob(resp io.ReadCloser) (string, error) {
 	// un-escape special characters
 	label := string(seedBytes)
 
+	util.PrintUtil("label := %s\n", label)
+
 	seedStr := util.UnescapeManifestLabel(label)
+
+	util.PrintUtil("seedStr := %s\n", seedStr)
 
 	return seedStr, err
 }
