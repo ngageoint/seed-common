@@ -1,9 +1,10 @@
 package containeryard
 
 import (
+	"strings"
+	
 	"github.com/ngageoint/seed-common/objects"
 	"github.com/ngageoint/seed-common/util"
-	"strings"
 )
 
 type Response struct {
