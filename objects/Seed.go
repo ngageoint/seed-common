@@ -3,7 +3,6 @@ package objects
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
@@ -320,6 +319,12 @@ func BuildImageName(seed *Seed) string {
 	return buffer.String()
 }
 
+type Blob struct {
+	Config struct {
+		Labels map[string]string
+	}
+}
+
 func GetSeedManifestFromBlob(blob io.ReadCloser) (string, error) {
 	defer blob.Close()
 	body, err := ioutil.ReadAll(blob)
@@ -327,66 +332,16 @@ func GetSeedManifestFromBlob(blob io.ReadCloser) (string, error) {
 		return "", err
 	}
 
-	temp, err := ioutil.TempFile("", "blob-")
+	blobStruct := &Blob{}
+	err = json.Unmarshal(body, &blobStruct)
 	if err != nil {
-		util.PrintUtil("ERROR: Could not create temp file for json blob\n")
+		util.PrintUtil("ERROR: Error unmarshalling layer blob: %s\n", err.Error())
 		return "", err
 	}
 
-	//defer os.Remove(temp.Name())
-
-	if _, err := temp.Write(body); err != nil {
-		util.PrintUtil("ERROR: Could not write temp file for json blob\n")
-		return "", err
-	}
-	if err := temp.Close(); err != nil {
-		util.PrintUtil("ERROR: Could not close temp file for json blob\n")
-		return "", err
-	}
-
-	// filter json blob through jq
-	cmdStr := fmt.Sprintf("jq -r '.container_config.Labels.\"com.ngageoint.seed.manifest\"' %s", temp.Name())
-	jqArgs := []string{"-r", ".container_config.Labels.\"com.ngageoint.seed.manifest\"", temp.Name()}
-	jqCmd := exec.Command("jq", jqArgs...)
-
-	errPipe, err := jqCmd.StderrPipe()
-	if err != nil {
-		util.PrintUtil("ERROR: error attaching to jq command stderr. %s\n", err.Error())
-	}
-
-	// Attach stdout pipe
-	outPipe, err := jqCmd.StdoutPipe()
-	if err != nil {
-		util.PrintUtil("ERROR: error attaching to jq command stdout. %s\n", err.Error())
-	}
-
-	// Run docker inspect
-	if err = jqCmd.Start(); err != nil {
-		util.PrintUtil("ERROR: error executing jq %s. %s\n", cmdStr, err.Error())
-	}
-
-	// Print out any std out
-	seedBytes, err := ioutil.ReadAll(outPipe)
-	if err != nil {
-		util.PrintUtil("ERROR: Error retrieving docker %s stdout.\n%s\n",
-			cmdStr, err.Error())
-	}
-
-	// check for errors on stderr
-	slurperr, _ := ioutil.ReadAll(errPipe)
-	if string(slurperr) != "" {
-		util.PrintUtil("ERROR: Error executing %s:\n%s\n",
-			cmdStr, string(slurperr))
-	}
-
-	// un-escape special characters
-	label := string(seedBytes)
-
-	util.PrintUtil("label := %s\n", label)
+	label := blobStruct.Config.Labels["com.ngageoint.seed.manifest"]
 
 	seedStr := util.UnescapeManifestLabel(label)
-
-	util.PrintUtil("seedStr := %s\n", seedStr)
 
 	return seedStr, err
 }
