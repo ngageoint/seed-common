@@ -1,8 +1,6 @@
 package containeryard
 
 import (
-	"strings"
-	
 	"github.com/ngageoint/seed-common/objects"
 	"github.com/ngageoint/seed-common/util"
 )
@@ -140,12 +138,6 @@ func (registry *ContainerYardRegistry) ImagesWithManifests() ([]objects.Image, e
 }
 
 func (registry *ContainerYardRegistry) GetImageManifest(repoName, tag string) (string, error) {
-	//remove http(s) prefix for docker pull command
-	url := strings.Replace(registry.URL, "http://", "", 1)
-	url = strings.Replace(url, "https://", "", 1)
-	//username := registry.Username
-	//password := registry.Password
-
 	manifest := ""
 	mv2, err := registry.v2Base.ManifestV2(repoName, tag)
 	if err == nil {
@@ -155,19 +147,5 @@ func (registry *ContainerYardRegistry) GetImageManifest(repoName, tag string) (s
 		}
 	}
 
-	// falling back to docker pull may result in lots of large pulls for non-seed images that somehow snuck through,
-	// always slowing down scans
-	/*if err != nil {
-		// fallback to docker pull
-		registry.Print("ERROR: Could not get seed manifest from v2 API: %s\n", err.Error())
-		registry.Print("Falling back to docker pull\n")
-		imageName, err := util.DockerPull(image, url, r.Org, username, password)
-		if err == nil {
-			manifest, err = util.GetSeedManifestFromImage(imageName)
-		}
-		if err != nil {
-			registry.Print("ERROR: Could not get manifest: %s\n", err.Error())
-		}
-	}*/
 	return manifest, err
 }

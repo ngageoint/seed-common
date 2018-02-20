@@ -98,12 +98,6 @@ func (r *v2registry) ImagesWithManifests() ([]objects.Image, error) {
 }
 
 func (r *v2registry) GetImageManifest(repoName, tag string) (string, error) {
-	//remove http(s) prefix for docker pull command
-	//url := strings.Replace(r.r.URL, "http://", "", 1)
-	//url = strings.Replace(url, "https://", "", 1)
-	//username := r.Username
-	//password := r.Password
-
 	manifest := ""
 	mv2, err := r.r.ManifestV2(repoName, tag)
 	if err == nil {
@@ -112,19 +106,6 @@ func (r *v2registry) GetImageManifest(repoName, tag string) (string, error) {
 			manifest, err = objects.GetSeedManifestFromBlob(resp)
 		}
 	}
-
-	/*if err != nil {
-		// fallback to docker pull
-		r.Print("ERROR: Could not get seed manifest from v2 API: %s\n", err.Error())
-		r.Print("Falling back to docker pull\n")
-		imageName, err := util.DockerPull(image, url, r.Org, username, password)
-		if err == nil {
-			manifest, err = util.GetSeedManifestFromImage(imageName)
-		}
-		if err != nil {
-			r.Print("ERROR: Could not get manifest: %s\n", err.Error())
-		}
-	}*/
 
 	return manifest, err
 }
