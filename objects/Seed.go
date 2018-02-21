@@ -3,7 +3,7 @@ package objects
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -253,7 +253,7 @@ func SeedFromImageLabel(imageName string) Seed {
 	// Print out any std out
 	seedBytes, err := ioutil.ReadAll(outPipe)
 	if err != nil {
-		fmt.Fprintf(os.Stdout, "ERROR: Error retrieving docker %s stdout.\n%s\n",
+		util.PrintUtil("ERROR: Error retrieving docker %s stdout.\n%s\n",
 			cmdStr, err.Error())
 	}
 
@@ -317,4 +317,31 @@ func BuildImageName(seed *Seed) string {
 	buffer.WriteString(seed.Job.PackageVersion)
 
 	return buffer.String()
+}
+
+type Blob struct {
+	Config struct {
+		Labels map[string]string
+	}
+}
+
+func GetSeedManifestFromBlob(blob io.ReadCloser) (string, error) {
+	defer blob.Close()
+	body, err := ioutil.ReadAll(blob)
+	if err != nil {
+		return "", err
+	}
+
+	blobStruct := &Blob{}
+	err = json.Unmarshal(body, &blobStruct)
+	if err != nil {
+		util.PrintUtil("ERROR: Error unmarshalling layer blob: %s\n", err.Error())
+		return "", err
+	}
+
+	label := blobStruct.Config.Labels["com.ngageoint.seed.manifest"]
+
+	seedStr := util.UnescapeManifestLabel(label)
+
+	return seedStr, err
 }
