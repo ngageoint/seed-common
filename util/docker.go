@@ -260,6 +260,32 @@ func RestartRegistry() error {
 	return nil
 }
 
+func StartRegistry() error {
+	PrintUtil("STARTING REGISTRY........................\n.\n.\n.\n.\n.\n")
+	var errs bytes.Buffer
+
+	PrintUtil("INFO: Starting test registry...\n")
+	cmd := exec.Command("../startRegistry.sh")
+	cmd.Stderr = io.MultiWriter(os.Stderr, &errs)
+	cmd.Stdout = os.Stdout
+
+	err := cmd.Run()
+
+	// check for errors on stderr first; it will likely have more explanation than cmd.Run
+	if errs.String() != "" {
+		PrintUtil("ERROR: Error starting registry. %s\n", errs.String())
+		return errors.New(errs.String())
+	}
+
+	if err != nil {
+		PrintUtil("ERROR: Error starting registry. %s\n",
+			err.Error())
+		return err
+	}
+
+	return nil
+}
+
 //Dockerpull pulls specified image from remote repository (default docker.io)
 //returns the name of the remote image retrieved, if any
 func DockerPull(image, registry, org, username, password string) (string, error) {
