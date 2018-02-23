@@ -11,7 +11,7 @@ import (
 
 func TestMain(m *testing.M) {
 	util.InitPrinter(util.PrintErr)
-	util.StartRegistry()
+	//util.StartRegistry()
 
 	code := m.Run()
 
