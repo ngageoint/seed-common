@@ -115,6 +115,56 @@ func ImageExists(imageName string) (bool, error) {
 	return true, nil
 }
 
+func SaveImage(imageName string) (string, error) {
+	// Remove the tag name
+	imageTar := strings.Split(imageName, ":")[0] + ".tar"
+	args := []string{"save", "-o", imageTar, imageName}
+	out, err := exec.Command("docker", args...).Output()
+	if err != nil {
+		PrintUtil("ERROR: Error executing docker %v\n", args)
+		PrintUtil("%s\n", err.Error())
+		return "", err
+	} else if string(out) != "" {
+		PrintUtil("ERROR: Error saving image %s.\n%s\n",
+			imageName, string(out))
+		return "", errors.New("ERROR saving image to " + imageTar + ".\n")
+	}
+	return imageTar, nil
+}
+
+func DockerMachineSCP(file, clusterMaster string) (bool, error) {
+	node := clusterMaster + ":/tmp/"+file
+	args := []string{"scp", file, node}
+	out, err := exec.Command("docker-machine", args...).Output()
+	if err != nil {
+		PrintUtil("ERROR: Error executing docker-machine %v\n", args)
+		PrintUtil("%s\n", err.Error())
+		return false, err
+	} else if string(out) != "" {
+		PrintUtil("ERROR: Error SCP of %s.\n%s\n",
+			file, string(out))
+		return false, errors.New("ERROR transferring image to " + clusterMaster + " via SCP.\n")
+	}
+	return true, nil
+}
+
+func DockerMachineLoad(file, clusterMaster string) (bool, error) {
+	imgFile := "/tmp/"+file
+	args := []string{"ssh", clusterMaster, "docker", "load", "-i", imgFile}
+	out, err := exec.Command("docker-machine", args...).Output()
+	if err != nil {
+		PrintUtil("ERROR: Error executing docker-machine %v\n", args)
+		PrintUtil("%s\n", err.Error())
+		return false, err
+	} else if string(out) == "" {
+		PrintUtil("ERROR: Error loading image from %s.\n",
+			imgFile)
+		return false, errors.New("ERROR: Error executing docker-machine %v\n Error loading image to " + clusterMaster + ".\n")
+	}
+	return true, nil
+}
+
+
 //ImageCpuUsage displays CPU usage of image
 func ImageCpuUsage(imageName string) {
 

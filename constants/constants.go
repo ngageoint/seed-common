@@ -123,6 +123,18 @@ const BatchFlag = "batch"
 //ShortBatchFlag - shorthand flag for batch
 const ShortBatchFlag = "b"
 
+// ClusterFlag - indicates the batch is run on a cluster
+const ClusterFlag = "cluster"
+
+// ShortClusterFlag - shorthand version for cluster indicator
+const ShortClusterFlag = "c"
+
+// ClusterMasterFlag - defines the cluster master node name
+const ClusterMasterFlag = "clusterMaster"
+
+// ShortClusterMasterFlag - shorthand flag for cluster master node name
+const ShortClusterMasterFlag = "cm"
+
 //RepeatFlag defines how many times to run a docker image
 const RepeatFlag = "repetitions"
 
