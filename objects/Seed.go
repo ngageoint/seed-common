@@ -304,6 +304,18 @@ func SeedFromManifestFile(seedFileName string) Seed {
 	return seed
 }
 
+//SeedFromManifestString returns seed struct parsed from seed manifest string
+func SeedFromManifestString(manifest string) (Seed, error) {
+	seed := &Seed{}
+
+	err := json.Unmarshal([]byte(manifest), &seed)
+	if err != nil {
+		util.PrintUtil("ERROR: Error unmarshalling seed: %s\n", err.Error())
+	}
+
+	return *seed, err
+}
+
 //BuildImageName extracts the Docker Image name from the seed.json
 // 	jobName-jobVersion-seed:pkgVersion
 func BuildImageName(seed *Seed) string {
