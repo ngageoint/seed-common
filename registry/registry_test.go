@@ -3,6 +3,7 @@ package registry
 import (
 	"fmt"
 	"os"
+	"sort"
 	"strings"
 	"testing"
 
@@ -12,7 +13,6 @@ import (
 
 func TestMain(m *testing.M) {
 	util.InitPrinter(util.PrintErr)
-	util.RestartRegistry()
 
 	code := m.Run()
 
@@ -55,7 +55,8 @@ func TestRepositories(t *testing.T) {
 		expect   string
 		errStr   string
 	}{
-		{0, "[my-job-0.1.0-seed my-job-0.1.2-seed extractor-0.1.0-seed addition-job-0.0.1-seed]", ""},
+		{0, "[addition-job-0.0.1-seed extractor-0.1.0-seed my-job-0.1.0-seed my-job-0.1.2-seed my-job-1.0.0-seed]", ""},
+		{1, "[my-job-0.1.0-seed]", ""},
 	}
 
 	regs, err := CreateTestRegistries()
@@ -68,6 +69,8 @@ func TestRepositories(t *testing.T) {
 		reg := regs[c.regIndex]
 
 		images, err := reg.Repositories()
+
+		sort.Strings(images)
 
 		resultStr := fmt.Sprintf("%s", images)
 
@@ -90,7 +93,7 @@ func TestTags(t *testing.T) {
 		expect   string
 		errStr   string
 	}{
-		{0, "my-job-0.1.0-seed", "[latest 0.1.0]", ""},
+		{0, "my-job-0.1.0-seed", "[0.1.0]", ""},
 	}
 
 	regs, err := CreateTestRegistries()
@@ -103,6 +106,8 @@ func TestTags(t *testing.T) {
 		reg := regs[c.regIndex]
 
 		tags, err := reg.Tags(c.repo)
+
+		sort.Strings(tags)
 
 		resultStr := fmt.Sprintf("%s", tags)
 
@@ -124,8 +129,9 @@ func TestImages(t *testing.T) {
 		expect   string
 		errStr   string
 	}{
-		{0, "[]", ""},
-		{0, "[my-job-0.1.0-seed:latest my-job-0.1.0-seed:0.1.0 my-job-0.1.2-seed:2.0.0 extractor-0.1.0-seed:0.1.0 addition-job-0.0.1-seed:1.0.0]", ""},
+		{0, "[addition-job-0.0.1-seed:1.0.0 extractor-0.1.0-seed:0.1.0 my-job-0.1.0-seed:0.1.0 my-job-0.1.2-seed:2.0.0 my-job-1.0.0-seed:0.1.0]", ""},
+		{1, "[my-job-0.1.0-seed:0.1.0]", ""},
+		{2, "[]", ""},
 	}
 
 	regs, err := CreateTestRegistries()
@@ -138,6 +144,8 @@ func TestImages(t *testing.T) {
 		reg := regs[c.regIndex]
 
 		images, err := reg.Images()
+
+		sort.Strings(images)
 
 		resultStr := fmt.Sprintf("%s", images)
 
@@ -155,20 +163,21 @@ func TestImages(t *testing.T) {
 
 func TestImagesWithManifests(t *testing.T) {
 	cases := []struct {
-		regIndex int
+		regIndex      int
 		expectedNames string
 		expectedOrg   string
 		expectedReg   string
 		errStr        string
 	}{
-		{0, "[]", "johnptobe-typo", "docker.io", ""},
-		{0, "[my-job-0.1.0-seed:latest my-job-0.1.0-seed:0.1.0 my-job-0.1.2-seed:2.0.0 extractor-0.1.0-seed:0.1.0 addition-job-0.0.1-seed:1.0.0]", "johnptobe", "docker.io", ""},
+		{0, "[addition-job-0.0.1-seed:1.0.0 extractor-0.1.0-seed:0.1.0 my-job-0.1.0-seed:0.1.0 my-job-0.1.2-seed:2.0.0 my-job-1.0.0-seed:0.1.0]", "johnptobe", "docker.io", ""},
+		{1, "[my-job-0.1.0-seed:0.1.0]", "", "http://localhost:5000", ""},
+		{2, "[]", "johnptobe-typo", "docker.io", ""},
 	}
 
 	regs, err := CreateTestRegistries()
 
 	if regs == nil || err != nil {
-		t.Errorf("Error creating test registries: %v\n", err)
+		//t.Errorf("Error creating test registries: %v\n", err)
 	}
 
 	for _, c := range cases {
@@ -188,13 +197,25 @@ func TestImagesWithManifests(t *testing.T) {
 			if !strings.Contains(i.Name, seed.Job.JobVersion) {
 				t.Errorf("ImagesWithManifests name: %v does not match up with manifest job version: %v\n", i.Name, seed.Job.JobVersion)
 			}
+			if err == nil && c.expectedOrg != i.Org {
+				t.Errorf("ImagesWithManifests org %v does not match returned image org %v\n", i.Org, c.expectedOrg)
+			}
+			if err == nil && c.expectedReg != i.Registry {
+				t.Errorf("ImagesWithManifests registry %v does not match returned image registry %v\n", i.Registry, c.expectedReg)
+			}
 		}
+
+		sort.Strings(names)
 
 		resultStr := fmt.Sprintf("%s", names)
 
 		if err == nil && c.expectedNames != resultStr {
 			t.Errorf("ImagesWithManifests returned %v, expected %v\n", resultStr, c.expectedNames)
 		}
+		if err == nil && c.expectedNames != resultStr {
+			t.Errorf("ImagesWithManifests returned %v, expected %v\n", resultStr, c.expectedNames)
+		}
+
 		if err != nil && !strings.Contains(err.Error(), c.errStr) {
 			t.Errorf("ImagesWithManifests returned an error: %v\n expected %v", err, c.errStr)
 		}
@@ -206,15 +227,17 @@ func TestImagesWithManifests(t *testing.T) {
 
 func TestGetImageManifest(t *testing.T) {
 	cases := []struct {
-		regIndex int
-		repoName string
-		tag string
-		expectedName string
-		expectedJob string
+		regIndex        int
+		repoName        string
+		tag             string
+		expectedName    string
+		expectedJob     string
 		expectedPackage string
-		errStr        string
+		errStr          string
 	}{
-		{0, "asdfasdf", "aaaa", "", "", "", ""},
+		{0, "asdfasdf", "aaaa", "", "", "", "unexpected end of JSON input"},
+		{0, "extractor-0.1.0-seed", "0.1.0", "extractor", "0.1.0", "0.1.0", ""},
+		{1, "my-job-0.1.0-seed", "0.1.0", "my-job", "0.1.0", "0.1.0", ""},
 	}
 
 	regs, err := CreateTestRegistries()
@@ -229,9 +252,6 @@ func TestGetImageManifest(t *testing.T) {
 		manifest, err := reg.GetImageManifest(c.repoName, c.tag)
 
 		seed, err2 := objects.SeedFromManifestString(manifest)
-		if err2 != nil {
-			t.Errorf("Seed job name from GetImageManifest is %v, expected %v\n", seed.Job.Name, c.expectedName)
-		}
 
 		if err == nil && err2 == nil && c.expectedName != seed.Job.Name {
 			t.Errorf("Seed job name from GetImageManifest is %v, expected %v\n", seed.Job.Name, c.expectedName)
@@ -239,7 +259,7 @@ func TestGetImageManifest(t *testing.T) {
 		if err == nil && err2 == nil && c.expectedJob != seed.Job.JobVersion {
 			t.Errorf("Seed job version from GetImageManifest is %v, expected %v\n", seed.Job.JobVersion, c.expectedJob)
 		}
-		if err == nil && err2 == nil && c.expectedName != seed.Job.PackageVersion {
+		if err == nil && err2 == nil && c.expectedPackage != seed.Job.PackageVersion {
 			t.Errorf("Seed package version from GetImageManifest is %v, expected %v\n", seed.Job.PackageVersion, c.expectedPackage)
 		}
 		if err != nil && !strings.Contains(err.Error(), c.errStr) && err2 != nil && !strings.Contains(err2.Error(), c.errStr) {
@@ -261,12 +281,13 @@ func CreateTestRegistries() ([]RepositoryRegistry, error) {
 	}{
 		{"hub.docker.com", "johnptobe", "", ""},
 		{"localhost:5000", "", "testuser", "testpassword"},
+		{"hub.docker.com", "johnptobe-typo", "", ""},
 	}
 
 	regs := []RepositoryRegistry{}
 	var retErr error
 	for _, c := range cases {
-		reg , err := CreateRegistry(c.url, c.org, c.username, c.password)
+		reg, err := CreateRegistry(c.url, c.org, c.username, c.password)
 		regs = append(regs, reg)
 
 		if err != nil {
