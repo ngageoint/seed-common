@@ -177,7 +177,7 @@ func TestImagesWithManifests(t *testing.T) {
 	regs, err := CreateTestRegistries()
 
 	if regs == nil || err != nil {
-		//t.Errorf("Error creating test registries: %v\n", err)
+		t.Errorf("Error creating test registries: %v\n", err)
 	}
 
 	for _, c := range cases {
