@@ -39,7 +39,7 @@ func TestParseSeedImageName(t *testing.T) {
 		{"colon-blow:1.0.0-seed:1.0.0", "[   ]", "ERROR: More than one colon in seed image name"},
 		{"seedless-1.0.0:1.0.0", "[   1.0.0]", "ERROR: Expected -seed, found 1.0.0"},
 		{"extractor-0.1.0-seed:0.1.0", "[extractor extractor 0.1.0 0.1.0]", ""},
-		{"docker.io/johnptobe/extractor-0.1.0-seed:0.1.0", "[extractor docker.io/johnptobe/extractor 0.1.0 0.1.0]", ""},
+		{"docker.io/geointseed/extractor-0.1.0-seed:0.1.0", "[extractor docker.io/geointseed/extractor 0.1.0 0.1.0]", ""},
 	}
 
 	for _, c := range cases {

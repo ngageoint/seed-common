@@ -28,7 +28,7 @@ func TestCreateRegistry(t *testing.T) {
 		expect   bool
 		errStr   string
 	}{
-		{"hub.docker.com", "johnptobe", "", "", true, ""},
+		{"hub.docker.com", "geointseed", "", "", true, ""},
 		{"localhost:5000", "", "", "", false, "authentication required"},
 		{"localhost:5000", "", "wronguser", "wrongpass", false, "authentication required"},
 		{"localhost:5000", "", "testuser", "testpassword", true, ""},
@@ -169,9 +169,9 @@ func TestImagesWithManifests(t *testing.T) {
 		expectedReg   string
 		errStr        string
 	}{
-		{0, "[addition-job-0.0.1-seed:1.0.0 extractor-0.1.0-seed:0.1.0 my-job-0.1.0-seed:0.1.0 my-job-0.1.2-seed:2.0.0 my-job-1.0.0-seed:0.1.0]", "johnptobe", "docker.io", ""},
+		{0, "[addition-job-0.0.1-seed:1.0.0 extractor-0.1.0-seed:0.1.0 my-job-0.1.0-seed:0.1.0 my-job-0.1.2-seed:2.0.0 my-job-1.0.0-seed:0.1.0]", "geointseed", "docker.io", ""},
 		{1, "[my-job-0.1.0-seed:0.1.0]", "", "http://localhost:5000", ""},
-		{2, "[]", "johnptobe-typo", "docker.io", ""},
+		{2, "[]", "geointseed-typo", "docker.io", ""},
 	}
 
 	regs, err := CreateTestRegistries()
@@ -279,9 +279,9 @@ func CreateTestRegistries() ([]RepositoryRegistry, error) {
 		username string
 		password string
 	}{
-		{"hub.docker.com", "johnptobe", "", ""},
+		{"hub.docker.com", "geointseed", "", ""},
 		{"localhost:5000", "", "testuser", "testpassword"},
-		{"hub.docker.com", "johnptobe-typo", "", ""},
+		{"hub.docker.com", "geointseed-typo", "", ""},
 	}
 
 	regs := []RepositoryRegistry{}
