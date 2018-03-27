@@ -1,6 +1,8 @@
 package containeryard
 
 import (
+	"strings"
+	
 	"github.com/ngageoint/seed-common/objects"
 	"github.com/ngageoint/seed-common/util"
 )
@@ -100,6 +102,9 @@ func (registry *ContainerYardRegistry) ImagesWithManifests() ([]objects.Image, e
 	err = registry.getContainerYardJson(url, &response)
 	if err == nil {
 		for repoName, image := range response.Results.Community {
+			if !strings.HasPrefix(repoName, registry.Org) {
+				continue
+			}
 			manifestLabel := ""
 			for name, value := range image.Labels {
 				if name == "com.ngageoint.seed.manifest" {
@@ -117,6 +122,9 @@ func (registry *ContainerYardRegistry) ImagesWithManifests() ([]objects.Image, e
 			}
 		}
 		for repoName, image := range response.Results.Imports {
+			if !strings.HasPrefix(repoName, registry.Org) {
+				continue
+			}
 			manifestLabel := ""
 			for name, value := range image.Labels {
 				if name == "com.ngageoint.seed.manifest" {
