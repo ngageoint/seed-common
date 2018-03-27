@@ -6,6 +6,7 @@ const TrueString = "true"
 // Subcommands supported by CLI
 const BatchCommand = "batch"
 const BuildCommand = "build"
+const ClusterCommand = "cluster"
 const InitCommand = "init"
 const ListCommand = "list"
 const PublishCommand = "publish"
@@ -123,23 +124,35 @@ const BatchFlag = "batch"
 //ShortBatchFlag - shorthand flag for batch
 const ShortBatchFlag = "b"
 
+//RepeatFlag defines how many times to run a docker image
+const RepeatFlag = "repetitions"
+
+//ShortRepeatFlag - shorthand flag for repetitions
+const ShortRepeatFlag = "rep"
+
+// seed cluster
+
 // ClusterFlag - indicates the batch is run on a cluster
 const ClusterFlag = "cluster"
 
 // ShortClusterFlag - shorthand version for cluster indicator
 const ShortClusterFlag = "c"
 
-// ClusterMasterFlag - defines the cluster master node name
-const ClusterMasterFlag = "clusterMaster"
+// ManagerFlag - defines the cluster master node name
+const ManagerFlag = "manager"
 
-// ShortClusterMasterFlag - shorthand flag for cluster master node name
-const ShortClusterMasterFlag = "cm"
+// ShortManagerFlag - shorthand flag for cluster master node name
+const ShortManagerFlag = "ma"
 
-//RepeatFlag defines how many times to run a docker image
-const RepeatFlag = "repetitions"
+// ModeFlag - defines cluster single or batch mode
+const ModeFlag = "mode"
 
-//ShortRepeatFlag - shorthand flag for repetitions
-const ShortRepeatFlag = "rep"
+//BatchMode - defines batch mode constant
+const BatchMode = "batch"
+//SingleMode - defines single mode constant
+const SingleMode = "single"
+
+// other constants
 
 //SeedFileName defines the filename for the seed file
 const SeedFileName = "seed.manifest.json"

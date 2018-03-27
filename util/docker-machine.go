@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -15,9 +16,9 @@ import (
 	"github.com/ngageoint/seed-common/constants"
 )
 
-//CheckSudo Checks error for telltale sign seed command should be run as sudo
-func CheckSudo() {
-	cmd := exec.Command("docker", "info")
+//MachineCheckSudo Checks error for telltale sign seed command should be run as sudo
+func MachineCheckSudo(machine string) {
+	cmd := exec.Command("docker-machine", "ssh", machine, "docker", "info")
 
 	// attach stderr pipe
 	errPipe, err := cmd.StderrPipe()
@@ -42,19 +43,19 @@ func CheckSudo() {
 	}
 }
 
-//DockerVersionHasLabel returns if the docker version is greater than 1.11.1
-func DockerVersionHasLabel() bool {
-	return DockerVersionGreaterThan(1, 11, 1)
+//MachineDockerVersionHasLabel returns if the docker version is greater than 1.11.1
+func MachineDockerVersionHasLabel(machine string) bool {
+	return MachineDockerVersionGreaterThan(machine, 1, 11, 1)
 }
 
-//DockerVersionHasLabel returns if the docker version is greater than 1.13.0
-func DockerVersionHasReferenceFilter() bool {
-	return DockerVersionGreaterThan(1, 13, 0)
+//MachineDockerVersionHasReferenceFilter returns if the docker version is greater than 1.13.0
+func MachineDockerVersionHasReferenceFilter(machine string) bool {
+	return MachineDockerVersionGreaterThan(machine, 1, 13, 0)
 }
 
-//DockerVersionGreaterThan returns if the docker version is greater than the specified version
-func DockerVersionGreaterThan(major, minor, patch int) bool {
-	cmd := exec.Command("docker", "version", "-f", "{{.Client.Version}}")
+//MachineDockerVersionGreaterThan returns if the docker version is greater than the specified version
+func MachineDockerVersionGreaterThan(machine string, major, minor, patch int) bool {
+	cmd := exec.Command("docker-machine", "ssh", machine, "docker", "version", "-f", "{{.Client.Version}}")
 
 	// Attach stdout pipe
 	outPipe, err := cmd.StdoutPipe()
@@ -98,11 +99,11 @@ func DockerVersionGreaterThan(major, minor, patch int) bool {
 	return false
 }
 
-//ImageExists returns true if a local image already exists, false otherwise
-func ImageExists(imageName string) (bool, error) {
+//MachineImageExists returns true if a local image already exists, false otherwise
+func MachineImageExists(machine, imageName string) (bool, error) {
 	// Test if image has been built; Rebuild if not
-	imgsArgs := []string{"images", "-q", imageName}
-	imgOut, err := exec.Command("docker", imgsArgs...).Output()
+	imgsArgs := []string{"ssh", machine, "docker", "images", "-q", imageName}
+	imgOut, err := exec.Command("docker-machine", imgsArgs...).Output()
 	if err != nil {
 		PrintUtil("ERROR: Error executing docker %v\n", imgsArgs)
 		PrintUtil("%s\n", err.Error())
@@ -115,16 +116,14 @@ func ImageExists(imageName string) (bool, error) {
 	return true, nil
 }
 
-//SaveImage saves the given image to a .tar
-// Strips the tag from the image name
-// Returns the filename
-func SaveImage(imageName string) (string, error) {
+//MachineSaveImage Saves specified image on given machine
+func MachineSaveImage(machine, imageName string) (string, error) {
 	// Remove the tag name
 	imageTar := strings.Split(imageName, ":")[0] + ".tar"
-	args := []string{"save", "-o", imageTar, imageName}
-	out, err := exec.Command("docker", args...).Output()
+	args := []string{"ssh", machine, "docker", "save", "-o", imageTar, imageName}
+	out, err := exec.Command("docker-machine", args...).Output()
 	if err != nil {
-		PrintUtil("ERROR: Error executing docker %v\n", args)
+		PrintUtil("ERROR: Error executing docker-machine %v\n", args)
 		PrintUtil("%s\n", err.Error())
 		return "", err
 	} else if string(out) != "" {
@@ -135,20 +134,46 @@ func SaveImage(imageName string) (string, error) {
 	return imageTar, nil
 }
 
-//ImageCpuUsage displays CPU usage of image
-func ImageCpuUsage(imageName string) {
-
+//MachineSCP SCPs the specified image file to the given machine
+func MachineSCP(file, machinePath, machine string) (bool, error) {
+	node := machine + ":"+machinePath
+	args := []string{"scp", file, node}
+	out, err := exec.Command("docker-machine", args...).Output()
+	if err != nil {
+		PrintUtil("ERROR: Error executing docker-machine %v\n", args)
+		PrintUtil("%s\n", err.Error())
+		return false, err
+	} else if string(out) != "" {
+		PrintUtil("ERROR: Error SCP of %s.\n%s\n",
+			file, string(out))
+		return false, errors.New("ERROR transferring image to " + machine + " via SCP.\n")
+	}
+	return true, nil
 }
 
-//ImageMemoryUsage displays memory usage of image
-func ImageMemoryUsage(imageName string) {
-
+//MachineLoad loads the specified image file onto the given machine
+func MachineLoad(file, machine string) (bool, error) {
+	imgFile := "/tmp/"+file
+	args := []string{"ssh", machine, "docker", "load", "-i", imgFile}
+	out, err := exec.Command("docker-machine", args...).Output()
+	if err != nil {
+		PrintUtil("ERROR: Error executing docker-machine %v\n", args)
+		PrintUtil("%s\n", err.Error())
+		return false, err
+	} else if string(out) == "" {
+		PrintUtil("ERROR: Error loading image from %s.\n",
+			imgFile)
+		return false, errors.New("ERROR: Error executing docker-machine %v\n"+
+			"Error loading image to " + machine + ".\n")
+	}
+	return true, nil
 }
 
-func Login(registry, username, password string) error {
+//MachineLogin logs into the specified registry on the given machine
+func MachineLogin(machine, registry, username, password string) error {
 	var errs, out bytes.Buffer
-	args := []string{"login", "-u", username, "-p", password, registry}
-	cmd := exec.Command("docker", args...)
+	args := []string{"ssh", machine, "docker", "login", "-u", username, "-p", password, registry}
+	cmd := exec.Command("docker-machine", args...)
 	cmd.Stderr = io.MultiWriter(os.Stderr, &errs)
 	cmd.Stdout = &out
 
@@ -168,7 +193,7 @@ func Login(registry, username, password string) error {
 
 	if err != nil {
 		errMsg := fmt.Sprintf("ERROR: Error executing docker login.\n%s\n", err.Error())
-		errors.New(errMsg)
+		err = errors.New(errMsg)
 		return err
 	}
 
@@ -176,13 +201,13 @@ func Login(registry, username, password string) error {
 	return nil
 }
 
-func Tag(origImg, img string) error {
+//MachineTag tags an image
+func MachineTag(machine, origImg, img string) error {
 	var errs bytes.Buffer
 
 	// Run docker tag
 	if img != origImg {
-		PrintUtil("INFO: Tagging image %s as %s\n", origImg, img)
-		tagCmd := exec.Command("docker", "tag", origImg, img)
+		tagCmd := exec.Command("docker-machine", "ssh", machine, "docker", "tag", origImg, img)
 		tagCmd.Stderr = io.MultiWriter(os.Stderr, &errs)
 		tagCmd.Stdout = os.Stderr
 
@@ -200,13 +225,13 @@ func Tag(origImg, img string) error {
 	return nil
 }
 
-func Push(img string) error {
+//MachinePush pushes an image to its repository
+func MachinePush(machine, img string) error {
 	var errs bytes.Buffer
 
 	// docker push
-	PrintUtil("INFO: Performing docker push %s\n", img)
-	errs.Reset()
-	pushCmd := exec.Command("docker", "push", img)
+	args := []string{"ssh", machine, "docker", "push", img}
+	pushCmd := exec.Command("docker-machine", args...)
 	pushCmd.Stderr = io.MultiWriter(os.Stderr, &errs)
 	pushCmd.Stdout = os.Stdout
 
@@ -228,11 +253,12 @@ func Push(img string) error {
 	return nil
 }
 
-func RemoveImage(img string) error {
+//MachineRemoveImage removes the specified image from the machine
+func MachineRemoveImage(machine, img string) error {
 	var errs bytes.Buffer
 
 	PrintUtil("INFO: Removing local image %s\n", img)
-	rmiCmd := exec.Command("docker", "rmi", img)
+	rmiCmd := exec.Command("docker-machine", "ssh", machine, "docker", "rmi", img)
 	rmiCmd.Stderr = io.MultiWriter(os.Stderr, &errs)
 	rmiCmd.Stdout = os.Stdout
 
@@ -253,7 +279,35 @@ func RemoveImage(img string) error {
 	return nil
 }
 
-func RestartRegistry() error {
+//MachineCreateRegistry creates a registry with the given port on the specified machine
+func MachineCreateRegistry(machine string, port int) (bool, error) {
+
+	// Set default port if not provided
+	if port < 0 {
+		port = 5000
+	}
+	portStr := strconv.Itoa(port) + ":" + strconv.Itoa(port)
+	// args := []string{"ssh", clusterMaster, "docker", "service", "create", "--name", "registry", "--publish", portStr, "registry:2"}
+	args := []string{"ssh", machine, "docker", "run", "-d", "-p", portStr, "--name", "registry", "registry:2"}
+	out, err := exec.Command("docker-machine", args...).Output()
+	if err != nil {
+		PrintUtil("ERROR: Error creating registry service.\n%s\n", err.Error())
+		return false, err
+
+	} else if strings.Contains(string(out), "rpc error") {
+		// Already a registry service available.. proceeding
+		if strings.Contains(string(out), "name conflicts with an existing object") {
+			return true, nil
+		} 
+		PrintUtil("ERROR: Port %s is already in use by another service. Please use another port number.\n", string(port))
+		return false, errors.New("Port " + string(port) + " is already in use by another service. Please use another port number.")
+	}
+
+	return true, nil
+}
+
+//MachineRestartRegistry restarts the registry
+func MachineRestartRegistry() error {
 	PrintUtil("RESTARTING REGISTRY........................\n.\n.\n.\n.\n.\n")
 	var errs bytes.Buffer
 
@@ -280,9 +334,9 @@ func RestartRegistry() error {
 	return nil
 }
 
-//Dockerpull pulls specified image from remote repository (default docker.io)
+//MachinePull pulls specified image from remote repository (default docker.io)
 //returns the name of the remote image retrieved, if any
-func DockerPull(image, registry, org, username, password string) (string, error) {
+func MachinePull(machine, image, registry, org, username, password string) (string, error) {
 	if username != "" {
 		//set config dir so we don't stomp on other users' logins with sudo
 		configDir := constants.DockerConfigDir + time.Now().Format(time.RFC3339)
@@ -311,8 +365,8 @@ func DockerPull(image, registry, org, username, password string) (string, error)
 
 	var errs, out bytes.Buffer
 	// pull image
-	pullArgs := []string{"pull", remoteImage}
-	pullCmd := exec.Command("docker", pullArgs...)
+	pullArgs := []string{"ssh", machine, "docker", "pull", remoteImage}
+	pullCmd := exec.Command("docker-machine", pullArgs...)
 	pullCmd.Stderr = io.MultiWriter(os.Stderr, &errs)
 	pullCmd.Stdout = &out
 
@@ -330,11 +384,12 @@ func DockerPull(image, registry, org, username, password string) (string, error)
 	return remoteImage, nil
 }
 
-func GetSeedManifestFromImage(imageName string) (string, error) {
+//MachineGetSeedManifestFromImage returns the manifest of the given image
+func MachineGetSeedManifestFromImage(machine, imageName string) (string, error) {
 	cmdStr := "inspect -f '{{index .Config.Labels \"com.ngageoint.seed.manifest\"}}'" + imageName
 	PrintUtil("INFO: Retrieving seed manifest from %s LABEL=com.ngageoint.seed.manifest\n", imageName)
 
-	inspectCommand := exec.Command("docker", "inspect", "-f",
+	inspectCommand := exec.Command("docker-machine", "ssh", machine, "docker", "inspect", "-f",
 		"'{{index .Config.Labels \"com.ngageoint.seed.manifest\"}}'", imageName)
 
 	errPipe, err := inspectCommand.StderrPipe()
@@ -373,4 +428,57 @@ func GetSeedManifestFromImage(imageName string) (string, error) {
 	seedStr := UnescapeManifestLabel(label)
 
 	return seedStr, err
+}
+
+//MachineHome returns the machine's home directory
+func MachineHome(machine string) string {
+	homeBytes, err := exec.Command("docker-machine", "ssh", machine, "printf", "$(printenv | sed -n -e 's/HOME=//p')").Output()
+	if err != nil {
+		PrintUtil("ERROR: Error retrieving machine's home directory\n%s", err.Error())
+		return ""	}
+	home := filepath.Join(string(filepath.Separator), string(homeBytes))
+
+	return home
+}
+
+//Mount mounts the specified path to the $HOME directory of the specified machine
+// Creates the path on the specified machine if it does not exist
+// Must mount to the home directory to avoid permission issues
+// Assumes the path e
+func Mount(machine, machinePath, path string) error {
+	// Create path if doesn't exist
+	_, err := exec.Command("docker-machine", "ssh", machine, "test", "-d", machinePath).Output()
+	if err != nil {
+		_, err = exec.Command("docker-machine", "ssh", machine, "mkdir", "-p", machinePath).Output()
+		if err != nil {
+			PrintUtil("ERROR: Error creating %s on %s\n", machinePath, machine)
+			return err
+		}
+	}
+
+	// Perform mount
+	args := []string{"mount", machine+":"+machinePath, path}
+	out, err := exec.Command("docker-machine", args...).Output()
+	if err != nil  {
+		PrintUtil("ERROR: Error mounting %s\n%s\n", path, err.Error())
+		return err
+	} else if string(out) != "" {
+		PrintUtil("ERROR: Error mountingg %s\n%s\n", path, string(out))
+		return errors.New(string(out))
+	}
+	return nil
+}
+
+//Unmount unmounts path from machine
+func Unmount(machine, machinepath, path string) error {
+
+	// Try 'docker-machine mount -u'
+	if _, err := exec.Command("docker-machine", "mount", "-u", machine+":"+machinepath, path).Output(); err != nil {
+		err = nil
+		if _, err := exec.Command("umount", path).Output(); err != nil {
+			PrintUtil("Error unmounting %s\n%s\n", path, err.Error())
+			return err
+		}
+	}
+	return  nil
 }
