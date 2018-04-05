@@ -176,7 +176,7 @@ func CopyFiles(copyfrom, copyto string) (bool, error) {
 	}
 
 	if !cfi.IsDir() {
-		// PrintUtil("%s is a file.. copying to %s", copyfrom, copyto)
+		PrintUtil("%s is a file.. copying to %s\n", copyfrom, copyto)
 		return CopyFile(copyfrom, copyto)
 	}
 
@@ -195,6 +195,7 @@ func CopyFiles(copyfrom, copyto string) (bool, error) {
 		PrintUtil("Error reading %s\n%s\n", copyfrom, err.Error())
 	}
 	copied := false
+	PrintUtil("files: %v\n", files)
 	for _, f := range files {
 		sfp := filepath.Join(copyfrom, f.Name())
 		dfp := filepath.Join(copyto, f.Name())
@@ -214,6 +215,8 @@ func CopyFiles(copyfrom, copyto string) (bool, error) {
 			}
 		}
 	}
+
+	PrintUtil("Made it through for loop with args %s, %s; returning %v, %v\n", copyfrom, copyto, copied, err)
 	return copied, nil
 }
 

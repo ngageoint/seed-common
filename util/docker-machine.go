@@ -476,9 +476,26 @@ func Unmount(machine, machinepath, path string) error {
 	if _, err := exec.Command("docker-machine", "mount", "-u", machine+":"+machinepath, path).Output(); err != nil {
 		err = nil
 		if _, err := exec.Command("umount", path).Output(); err != nil {
-			PrintUtil("Error unmounting %s\n%s\n", path, err.Error())
+			PrintUtil("ERROR: Error unmounting %s\n%s\n", path, err.Error())
 			return err
 		}
 	}
 	return  nil
+}
+
+//CreateVolume creates a volume on the specified machine
+func CreateVolume(volumeName, machine string) (string, error) {
+	if _, err := exec.Command("docker-machine", "ssh", machine, "docker", "volume", "create", "--name", volumeName).Output(); err != nil {
+		PrintUtil("ERROR: Error creating named volume on machine %s: %s\n", machine, err.Error())
+		return "", errors.New("Error creating named volume on machine "+machine)
+	}
+
+	mntpnt, err := exec.Command("docker-machine", "ssh", machine, "docker", "volume", "inspect", volumeName, "--format", "\"{{.Mountpoint}}\"").Output()
+	if err != nil {
+		PrintUtil("ERROR: Error retrieving volume %s mountpoint...%s\n", volumeName, err.Error())
+		return "", err
+	}
+	mountpoint := string(mntpnt)
+
+	return mountpoint, nil
 }
