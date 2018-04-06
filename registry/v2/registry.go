@@ -10,6 +10,7 @@ import (
 
 type v2registry struct {
 	r        *registry.Registry
+	Hostname string
 	Org      string
 	Username string
 	Password string
@@ -23,7 +24,9 @@ func New(url, org, username, password string) (*v2registry, error) {
 
 	reg, err := registry.New(url, username, password)
 	if reg != nil {
-		return &v2registry{r: reg, Org: org, Username: username, Password: password, Print: util.PrintUtil}, err
+		host := strings.Replace(url, "https://", "", 1)
+		host = strings.Replace(host, "http://", "", 1)
+		return &v2registry{r: reg, Hostname: host, Org: org, Username: username, Password: password, Print: util.PrintUtil}, err
 	}
 	return nil, err
 }
@@ -90,7 +93,7 @@ func (v2 *v2registry) ImagesWithManifests() ([]objects.Image, error) {
 			continue
 		}
 
-		imageStruct := objects.Image{Name: imgstr, Registry: v2.r.URL, Org: v2.Org, Manifest: manifest}
+		imageStruct := objects.Image{Name: imgstr, Registry: v2.Hostname, Org: v2.Org, Manifest: manifest}
 		images = append(images, imageStruct)
 	}
 

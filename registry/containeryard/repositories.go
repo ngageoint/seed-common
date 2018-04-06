@@ -2,7 +2,7 @@ package containeryard
 
 import (
 	"strings"
-	
+
 	"github.com/ngageoint/seed-common/objects"
 	"github.com/ngageoint/seed-common/util"
 )
@@ -117,7 +117,15 @@ func (registry *ContainerYardRegistry) ImagesWithManifests() ([]objects.Image, e
 			for tagName, _ := range image.Tags {
 				manifestLabel, err = registry.GetImageManifest(repoName, tagName)
 				imageStr := repoName + ":" + tagName
-				img := objects.Image{Name: imageStr, Registry: registry.URL, Org: registry.Org, Manifest: manifestLabel}
+				org := registry.Org
+				parts := strings.SplitN(imageStr, "/",2)
+				if len(parts) == 2 {
+					org = parts[0]
+					imageStr = parts[1]
+				} else {
+					registry.Print("Error parsing org out of repo name: %s \n", repoName)
+				}
+				img := objects.Image{Name: imageStr, Registry: registry.Hostname, Org: org, Manifest: manifestLabel}
 				repos = append(repos, img)
 			}
 		}
@@ -137,7 +145,15 @@ func (registry *ContainerYardRegistry) ImagesWithManifests() ([]objects.Image, e
 			for tagName, _ := range image.Tags {
 				manifestLabel, err = registry.GetImageManifest(repoName, tagName)
 				imageStr := repoName + ":" + tagName
-				img := objects.Image{Name: imageStr, Registry: registry.URL, Org: registry.Org, Manifest: manifestLabel}
+				org := registry.Org
+				parts := strings.SplitN(imageStr, "/",2)
+				if len(parts) == 2 {
+					org = parts[0]
+					imageStr = parts[1]
+				} else {
+					registry.Print("Error parsing org out of repo name: %s \n", repoName)
+				}
+				img := objects.Image{Name: imageStr, Registry: registry.Hostname, Org: org, Manifest: manifestLabel}
 				repos = append(repos, img)
 			}
 		}
