@@ -212,10 +212,6 @@ func TestImagesWithManifests(t *testing.T) {
 		if err == nil && c.expectedNames != resultStr {
 			t.Errorf("ImagesWithManifests returned %v, expected %v\n", resultStr, c.expectedNames)
 		}
-		if err == nil && c.expectedNames != resultStr {
-			t.Errorf("ImagesWithManifests returned %v, expected %v\n", resultStr, c.expectedNames)
-		}
-
 		if err != nil && !strings.Contains(err.Error(), c.errStr) {
 			t.Errorf("ImagesWithManifests returned an error: %v\n expected %v", err, c.errStr)
 		}
