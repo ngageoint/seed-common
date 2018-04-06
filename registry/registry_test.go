@@ -170,7 +170,7 @@ func TestImagesWithManifests(t *testing.T) {
 		errStr        string
 	}{
 		{0, "[addition-job-0.0.1-seed:1.0.0 extractor-0.1.0-seed:0.1.0 my-job-0.1.0-seed:0.1.0 my-job-0.1.2-seed:2.0.0 my-job-1.0.0-seed:0.1.0]", "geointseed", "docker.io", ""},
-		{1, "[my-job-0.1.0-seed:0.1.0]", "", "http://localhost:5000", ""},
+		{1, "[my-job-0.1.0-seed:0.1.0]", "", "localhost:5000", ""},
 		{2, "[]", "geointseed-typo", "docker.io", ""},
 	}
 
