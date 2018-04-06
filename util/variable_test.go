@@ -43,7 +43,7 @@ func TestIsReserved(t *testing.T) {
 	for _, c := range cases {
 		reserved := IsReserved(c.name, c.allocated)
 		if reserved != c.reserved {
-			t.Errorf("IsReserved(%q, %q) returned %s, expected %s", c.name, c.allocated, reserved, c.reserved)
+			t.Errorf("IsReserved(%v, %v) returned %v, expected %v", c.name, c.allocated, reserved, c.reserved)
 		}
 	}
 }
@@ -64,7 +64,7 @@ func TestIsInUse(t *testing.T) {
 	for _, c := range cases {
 		used := IsInUse(c.name, c.path, vars)
 		if used != c.in_use {
-			t.Errorf("IsInUse(%q, %q, %q) returned %s, expected %s", c.name, c.path, vars, used, c.in_use)
+			t.Errorf("IsInUse(%v, %v, %v) returned %v, expected %v", c.name, c.path, vars, used, c.in_use)
 		}
 	}
 }
@@ -84,7 +84,7 @@ func TestRemoveString(t *testing.T) {
 		result := RemoveString(c.list, c.s)
 
 		if fmt.Sprintf("%s", result) != fmt.Sprintf("%s", c.result) {
-			t.Errorf("RemoveString(%q, %q) returned %s, expected %s", c.list, c.s, result, c.result)
+			t.Errorf("RemoveString(%v, %v) returned %v, expected %v", c.list, c.s, result, c.result)
 		}
 	}
 }
@@ -104,7 +104,7 @@ func TestContainsString(t *testing.T) {
 		result := ContainsString(c.list, c.s)
 
 		if result != c.result {
-			t.Errorf("RemoveString(%q, %q) returned %s, expected %s", c.list, c.s, result, c.result)
+			t.Errorf("RemoveString(%v, %v) returned %v, expected %v", c.list, c.s, result, c.result)
 		}
 	}
 }

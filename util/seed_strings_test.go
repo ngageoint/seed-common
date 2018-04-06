@@ -50,7 +50,7 @@ func TestParseSeedImageName(t *testing.T) {
 		}
 
 		if err == nil && c.errStr != "" {
-			t.Errorf("ParseSeedImageName(%q) did not return an error when one was expected", resultStr, c.output)
+			t.Errorf("ParseSeedImageName(%q) did not return an error when one was expected", resultStr)
 		}
 
 		if err != nil && !strings.Contains(err.Error(), c.errStr) {

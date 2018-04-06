@@ -39,6 +39,12 @@ const InputsFlag = "inputs"
 //ShortInputsFlag defines the shorthand input flag
 const ShortInputsFlag = "i"
 
+//InputsFlag defines the InputFlag
+const JsonFlag = "json"
+
+//ShortInputsFlag defines the shorthand input flag
+const ShortJsonFlag = "j"
+
 //JobOutputDirFlag defines the job output directory
 const JobOutputDirFlag = "outDir"
 
