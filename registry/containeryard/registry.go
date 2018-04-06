@@ -11,13 +11,14 @@ import (
 
 //ContainerYardRegistry type representing a Container Yard registry
 type ContainerYardRegistry struct {
-	URL    string
-	Client *http.Client
+	URL      string
+	Hostname string
+	Client   *http.Client
 	Org      string
 	Username string
 	Password string
-	v2Base *registry.Registry
-	Print  util.PrintCallback
+	v2Base   *registry.Registry
+	Print    util.PrintCallback
 }
 
 func (r *ContainerYardRegistry) Name() string {
@@ -32,14 +33,18 @@ func New(registryUrl, org, username, password string) (*ContainerYardRegistry, e
 	url := strings.TrimSuffix(registryUrl, "/")
 	reg, err := registry.New(url, username, password)
 
+	host := strings.Replace(url, "https://", "", 1)
+	host = strings.Replace(host, "http://", "", 1)
+
 	registry := &ContainerYardRegistry{
-		URL:    url,
-		Client: &http.Client{},
+		URL:      url,
+		Hostname: host,
+		Client:   &http.Client{},
 		Org:      org,
 		Username: username,
 		Password: password,
-		v2Base: reg,
-		Print:  util.PrintUtil,
+		v2Base:   reg,
+		Print:    util.PrintUtil,
 	}
 
 	return registry, err
