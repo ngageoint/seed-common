@@ -2,6 +2,8 @@ package util
 
 import (
 	"bufio"
+	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -128,9 +130,9 @@ func GetSeedFileName(dir string) (string, bool, error) {
 func SeedFileName(dir string) (string, error) {
 	seedFileName, exists, err := GetSeedFileName(dir)
 	if !exists {
-		PrintUtil("ERROR: %s cannot be found.\n",
-			seedFileName)
-		PrintUtil("Make sure you have specified the correct directory.\n")
+		msg := fmt.Sprintf("ERROR: %s cannot be found. Make sure you "+
+			"have specified the correct directory.\n", seedFileName)
+		err = errors.New(msg)
 	}
 
 	return seedFileName, err
