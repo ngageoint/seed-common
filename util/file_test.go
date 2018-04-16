@@ -65,7 +65,7 @@ func TestReadLinesFromFile(t *testing.T) {
 		lineCount int
 		errorMsg  string
 	}{
-		{".", 0, "no such file or directory"},
+		{".", 0, "seed.manifest.json cannot be found"},
 		{"../testdata/complete", 101, ""},
 	}
 
@@ -87,7 +87,7 @@ func TestReadLinesFromFile(t *testing.T) {
 			errMsg = fmt.Sprintf("%s", err.Error())
 		}
 		if !strings.Contains(errMsg, c.errorMsg) {
-			t.Errorf("DockerfileBaseRegistry(%q) == %v, expected %v", c.dir, errMsg, c.errorMsg)
+			t.Errorf("TestReadLinesFromFile(%q) == %v, expected %v", c.dir, errMsg, c.errorMsg)
 		}
 	}
 }
