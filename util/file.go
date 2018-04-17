@@ -9,6 +9,9 @@ import (
 	"strings"
 
 	"github.com/ngageoint/seed-common/constants"
+	"io/ioutil"
+	"encoding/json"
+	"bytes"
 )
 
 //GetFullPath returns the full path of the given file. This expands relative file
@@ -164,4 +167,24 @@ func ReadLinesFromFile(filename string) ([]string, error) {
 	}
 
 	return lines, nil
+}
+
+func ReadJsonFile(filename string) (string, error) {
+	bytes, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return "", err
+	}
+
+	valid := json.Valid(bytes)
+	if !valid {
+		return "", errors.New("Invalid JSON")
+	}
+
+	dst := new(bytes.Buffer)
+	err = json.Compact(dst, bytes)
+	if err != nil {
+		return "", err
+	}
+	json := string(bytes)
+	return json, err
 }
