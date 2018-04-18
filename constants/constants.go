@@ -135,6 +135,12 @@ const RepeatFlag = "repetitions"
 //ShortRepeatFlag - shorthand flag for repetitions
 const ShortRepeatFlag = "rep"
 
+//VersionFlag defines version of seed spec to use
+const VersionFlag = "version"
+
+//ShortVersionFlag - shorthand flag for version
+const ShortVersionFlag = "v"
+
 //SeedFileName defines the filename for the seed file
 const SeedFileName = "seed.manifest.json"
 
