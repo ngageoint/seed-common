@@ -3,15 +3,15 @@ package util
 import (
 	"bufio"
 	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
 
-	"encoding/json"
 	"github.com/ngageoint/seed-common/constants"
-	"io/ioutil"
 )
 
 //GetFullPath returns the full path of the given file. This expands relative file
