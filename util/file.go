@@ -2,16 +2,16 @@ package util
 
 import (
 	"bufio"
+	"bytes"
 	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 
+	"encoding/json"
 	"github.com/ngageoint/seed-common/constants"
 	"io/ioutil"
-	"encoding/json"
-	"bytes"
 )
 
 //GetFullPath returns the full path of the given file. This expands relative file
@@ -170,21 +170,21 @@ func ReadLinesFromFile(filename string) ([]string, error) {
 }
 
 func ReadJsonFile(filename string) (string, error) {
-	bytes, err := ioutil.ReadFile(filename)
+	filebytes, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return "", err
 	}
 
-	valid := json.Valid(bytes)
+	valid := json.Valid(filebytes)
 	if !valid {
 		return "", errors.New("Invalid JSON")
 	}
 
 	dst := new(bytes.Buffer)
-	err = json.Compact(dst, bytes)
+	err = json.Compact(dst, filebytes)
 	if err != nil {
 		return "", err
 	}
-	json := string(bytes)
+	json := dst.String()
 	return json, err
 }
