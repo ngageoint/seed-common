@@ -168,23 +168,3 @@ func ReadLinesFromFile(filename string) ([]string, error) {
 
 	return lines, nil
 }
-
-func ReadJsonFile(filename string) (string, error) {
-	filebytes, err := ioutil.ReadFile(filename)
-	if err != nil {
-		return "", err
-	}
-
-	valid := json.Valid(filebytes)
-	if !valid {
-		return "", errors.New("Invalid JSON")
-	}
-
-	dst := new(bytes.Buffer)
-	err = json.Compact(dst, filebytes)
-	if err != nil {
-		return "", err
-	}
-	json := dst.String()
-	return json, err
-}
