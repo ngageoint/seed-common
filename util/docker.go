@@ -134,7 +134,6 @@ func Login(registry, username, password string) error {
 
 	err := cmd.Run()
 
-
 	errStr := strings.ToUpper(errs.String())
 	if strings.Contains(errStr, "WARNING") {
 		//report warnings but don't return error (i.e. --password via CLI is insecure warning)

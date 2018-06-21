@@ -2,9 +2,9 @@ package util
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"time"
-	"log"
 )
 
 type PrintCallback func(format string, args ...interface{})

@@ -1,9 +1,9 @@
 package util
 
 import (
-	"testing"
 	"fmt"
 	"strings"
+	"testing"
 )
 
 func init() {
