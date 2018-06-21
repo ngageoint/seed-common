@@ -178,6 +178,7 @@ func (o *Setting) UnmarshalJSON(b []byte) error {
 
 type ErrorMap struct {
 	Code        int    `json:"code"`
+	Name        string `json:"name"`
 	Title       string `json:"title"`
 	Description string `json:"description"`
 	Category    string `json:"category"`

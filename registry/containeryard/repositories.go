@@ -47,10 +47,10 @@ func (registry *ContainerYardRegistry) Repositories() ([]string, error) {
 
 	err = registry.getContainerYardJson(url, &response)
 	if err == nil {
-		for repoName, _ := range response.Results.Community {
+		for repoName := range response.Results.Community {
 			repos = append(repos, repoName)
 		}
-		for repoName, _ := range response.Results.Imports {
+		for repoName := range response.Results.Imports {
 			repos = append(repos, repoName)
 		}
 	}
@@ -68,12 +68,12 @@ func (registry *ContainerYardRegistry) Tags(repository string) ([]string, error)
 	err = registry.getContainerYardJson(url, &response)
 	if err == nil {
 		for _, image := range response.Results.Community {
-			for tagName, _ := range image.Tags {
+			for tagName := range image.Tags {
 				tags = append(tags, tagName)
 			}
 		}
 		for _, image := range response.Results.Imports {
-			for tagName, _ := range image.Tags {
+			for tagName := range image.Tags {
 				tags = append(tags, tagName)
 			}
 		}
@@ -114,11 +114,11 @@ func (registry *ContainerYardRegistry) ImagesWithManifests() ([]objects.Image, e
 			if manifestLabel == "" {
 				continue
 			}
-			for tagName, _ := range image.Tags {
+			for tagName := range image.Tags {
 				manifestLabel, err = registry.GetImageManifest(repoName, tagName)
 				imageStr := repoName + ":" + tagName
 				org := registry.Org
-				parts := strings.SplitN(imageStr, "/",2)
+				parts := strings.SplitN(imageStr, "/", 2)
 				if len(parts) == 2 {
 					org = parts[0]
 					imageStr = parts[1]
@@ -142,11 +142,11 @@ func (registry *ContainerYardRegistry) ImagesWithManifests() ([]objects.Image, e
 			if manifestLabel == "" {
 				continue
 			}
-			for tagName, _ := range image.Tags {
+			for tagName := range image.Tags {
 				manifestLabel, err = registry.GetImageManifest(repoName, tagName)
 				imageStr := repoName + ":" + tagName
 				org := registry.Org
-				parts := strings.SplitN(imageStr, "/",2)
+				parts := strings.SplitN(imageStr, "/", 2)
 				if len(parts) == 2 {
 					org = parts[0]
 					imageStr = parts[1]
