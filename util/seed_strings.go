@@ -7,6 +7,9 @@ import (
 )
 
 func UnescapeManifestLabel(label string) string {
+	if len(label) == 0 {
+		return label
+	}
 	// un-escape special characters
 	seedStr := label
 	seedStr = strings.Replace(seedStr, "\\\"", "\"", -1)

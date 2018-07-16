@@ -20,6 +20,9 @@ func (registry *Registry) Repositories() ([]string, error) {
 	for {
 		registry.Logf("registry.repositories url=%s", url)
 		url, err = registry.getPaginatedJson(url, &response)
+		if !strings.HasPrefix(url, "http") {
+			url = registry.URL + url
+		}
 		switch err {
 		case ErrNoMorePages:
 			repos = append(repos, response.Repositories...)
@@ -42,6 +45,9 @@ func (registry *Registry) UserRepositories(user string) ([]string, error) {
 		//registry.Logf("registry.repositories url=%s", url)
 		response.Next = ""
 		url, err = registry.getDockerHubPaginatedJson(url, &response)
+		if !strings.HasPrefix(url, "http") {
+			url = registry.URL + url
+		}
 		for _, r := range response.Results {
 			repos = append(repos, r.Name)
 		}
