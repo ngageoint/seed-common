@@ -1,6 +1,7 @@
 package containeryard
 
 import (
+	"errors"
 	"strings"
 
 	"github.com/ngageoint/seed-common/objects"
@@ -103,6 +104,7 @@ func (registry *ContainerYardRegistry) ImagesWithManifests() ([]objects.Image, e
 	if err == nil {
 		for repoName, image := range response.Results.Community {
 			if !strings.HasPrefix(repoName, registry.Org) {
+				registry.Print("Skipping image %s because it does not belong to org %s", repoName, registry.Org)
 				continue
 			}
 			manifestLabel := ""
@@ -112,10 +114,16 @@ func (registry *ContainerYardRegistry) ImagesWithManifests() ([]objects.Image, e
 				}
 			}
 			if manifestLabel == "" {
+				registry.Print("Skipping image %s due to missing manifest label", repoName)
 				continue
 			}
 			for tagName := range image.Tags {
 				manifestLabel, err = registry.GetImageManifest(repoName, tagName)
+				if err != nil {
+					//skip images with empty manifests
+					registry.Print("ERROR: Error reading v2 manifest for %s: %s\n Skipping.\n", repoName, err.Error())
+					continue
+				}
 				imageStr := repoName + ":" + tagName
 				org := registry.Org
 				parts := strings.SplitN(imageStr, "/", 2)
@@ -131,6 +139,7 @@ func (registry *ContainerYardRegistry) ImagesWithManifests() ([]objects.Image, e
 		}
 		for repoName, image := range response.Results.Imports {
 			if !strings.HasPrefix(repoName, registry.Org) {
+				registry.Print("Skipping image %s because it does not belong to org %s", repoName, registry.Org)
 				continue
 			}
 			manifestLabel := ""
@@ -140,10 +149,16 @@ func (registry *ContainerYardRegistry) ImagesWithManifests() ([]objects.Image, e
 				}
 			}
 			if manifestLabel == "" {
+				registry.Print("Skipping image %s due to missing manifest label", repoName)
 				continue
 			}
 			for tagName := range image.Tags {
 				manifestLabel, err = registry.GetImageManifest(repoName, tagName)
+				if err != nil {
+					//skip images with empty manifests
+					registry.Print("ERROR: Error reading v2 manifest for %s: %s\n Skipping.\n", repoName, err.Error())
+					continue
+				}
 				imageStr := repoName + ":" + tagName
 				org := registry.Org
 				parts := strings.SplitN(imageStr, "/", 2)
@@ -169,6 +184,10 @@ func (registry *ContainerYardRegistry) GetImageManifest(repoName, tag string) (s
 		if err == nil {
 			manifest, err = objects.GetSeedManifestFromBlob(resp)
 		}
+	}
+
+	if err == nil && manifest == "" {
+		err = errors.New("Empty seed manifest!")
 	}
 
 	return manifest, err
