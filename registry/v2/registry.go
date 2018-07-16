@@ -73,6 +73,8 @@ func (v2 *v2registry) Images() ([]string, error) {
 
 func (v2 *v2registry) ImagesWithManifests() ([]objects.Image, error) {
 	imageNames, err := v2.Images()
+	v2.Print("Images found in V2 Registry %s with Org %s: \n %v", v2.Hostname, v2.Org, imageNames)
+	v2.Print("Getting Manifests for %d images in V2 Registry %s with Org %s", len(imageNames), v2.Hostname, v2.Org)
 
 	if err != nil {
 		return nil, err
@@ -81,6 +83,7 @@ func (v2 *v2registry) ImagesWithManifests() ([]objects.Image, error) {
 	images := []objects.Image{}
 
 	for _, imgstr := range imageNames {
+		v2.Print("Getting manifest for %s", imgstr)
 		temp := strings.Split(imgstr, ":")
 		if len(temp) != 2 {
 			v2.Print("ERROR: Invalid seed name: %s. Unable to split into name/tag pair\n", imgstr)
