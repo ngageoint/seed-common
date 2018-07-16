@@ -1,6 +1,7 @@
 package v2
 
 import (
+	"errors"
 	"strings"
 
 	"github.com/heroku/docker-registry-client/registry"
@@ -111,6 +112,10 @@ func (v2 *v2registry) GetImageManifest(repoName, tag string) (string, error) {
 		if err == nil {
 			manifest, err = objects.GetSeedManifestFromBlob(resp)
 		}
+	}
+
+	if err == nil && manifest == "" {
+		err = errors.New("Empty seed manifest!")
 	}
 
 	return manifest, err

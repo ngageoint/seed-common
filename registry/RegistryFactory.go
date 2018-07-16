@@ -64,34 +64,34 @@ func CreateRegistry(url, org, username, password string) (RepositoryRegistry, er
 		url = "https://" + url
 	}
 
-	v2, err1 := NewV2Registry(url, org, username, password)
+	yard, err1 := NewContainerYardRegistry(url, org, username, password)
 	if err1 == nil {
-		if v2 != nil && v2.Ping() == nil {
-			return v2, nil
-		} else {
-			err1 = v2.Ping()
-		}
-	}
-
-	hub, err2 := NewDockerHubRegistry(url, org, username, password)
-	if err2 == nil {
-		if hub != nil && hub.Ping() == nil {
-			return hub, nil
-		} else {
-			err2 = hub.Ping()
-		}
-	}
-
-	yard, err3 := NewContainerYardRegistry(url, org, username, password)
-	if err3 == nil {
 		if yard != nil && yard.Ping() == nil {
 			return yard, nil
 		} else {
-			err3 = yard.Ping()
+			err1 = yard.Ping()
 		}
 	}
 
-	msg := fmt.Sprintf("ERROR: Could not create registry. \n V2: %s \n docker hub: %s \n Container Yard: %s \n", err1.Error(), err2.Error(), err3.Error())
+	v2, err2 := NewV2Registry(url, org, username, password)
+	if err2 == nil {
+		if v2 != nil && v2.Ping() == nil {
+			return v2, nil
+		} else {
+			err2 = v2.Ping()
+		}
+	}
+
+	hub, err3 := NewDockerHubRegistry(url, org, username, password)
+	if err3 == nil {
+		if hub != nil && hub.Ping() == nil {
+			return hub, nil
+		} else {
+			err3 = hub.Ping()
+		}
+	}
+
+	msg := fmt.Sprintf("ERROR: Could not create registry. \n Container Yard: %s \n V2: %s \n docker hub: %s \n", err1.Error(), err2.Error(), err3.Error())
 	err := errors.New(msg)
 
 	return nil, err
