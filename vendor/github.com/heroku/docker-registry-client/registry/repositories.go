@@ -1,5 +1,9 @@
 package registry
 
+import (
+	"strings"
+)
+
 type repositoriesResponse struct {
 	Count        int
 	Next         string
