@@ -16,8 +16,8 @@ func TestGetNormalizedVariable(t *testing.T) {
 	}{
 		{"abc-def", "ABC_DEF"},
 		{"ABC_def", "ABC_DEF"},
-		{"12345", ""},
-		{"123_ab-CD", "_AB_CD"},
+		{"12345", "12345"},
+		{"123_ab-CD", "123_AB_CD"},
 	}
 
 	for _, c := range cases {

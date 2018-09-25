@@ -13,6 +13,8 @@ func GetNormalizedVariable(inputName string) string {
 			return r
 		case r >= 'a' && r <= 'z':
 			return 'A' + (r - 'a')
+		case r >= '0' && r <= '9':
+			return r
 		case r == '-':
 			return '_'
 		}
