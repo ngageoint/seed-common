@@ -129,7 +129,7 @@ func TestImages(t *testing.T) {
 		expect   string
 		errStr   string
 	}{
-		{0, "[addition-job-0.0.1-seed:1.0.0 extractor-0.1.0-seed:0.1.0 gpu-test-1.0.0-seed my-job-0.1.0-seed:0.1.0 my-job-0.1.2-seed:2.0.0 my-job-1.0.0-seed:0.1.0]", ""},
+		{0, "[addition-job-0.0.1-seed:1.0.0 extractor-0.1.0-seed:0.1.0 gpu-test-1.0.0-seed:1.0.0 my-job-0.1.0-seed:0.1.0 my-job-0.1.2-seed:2.0.0 my-job-1.0.0-seed:0.1.0]", ""},
 		{1, "[my-job-0.1.0-seed:0.1.0]", ""},
 		{2, "[]", ""},
 	}
