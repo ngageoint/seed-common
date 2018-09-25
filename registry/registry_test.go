@@ -55,7 +55,7 @@ func TestRepositories(t *testing.T) {
 		expect   string
 		errStr   string
 	}{
-		{0, "[addition-job-0.0.1-seed extractor-0.1.0-seed gpu-test-1.0.0-seed:1.0.0 my-job-0.1.0-seed my-job-0.1.2-seed my-job-1.0.0-seed]", ""},
+		{0, "[addition-job-0.0.1-seed extractor-0.1.0-seed gpu-test-1.0.0-seed my-job-0.1.0-seed my-job-0.1.2-seed my-job-1.0.0-seed]", ""},
 		{1, "[my-job-0.1.0-seed]", ""},
 	}
 
