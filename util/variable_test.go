@@ -56,7 +56,7 @@ func TestIsInUse(t *testing.T) {
 	}{
 		{"test", "path.one", false},
 		{"test", "path.two", true},
-		{"test1", "path.three", true},
+		{"test1", "path.three", false},
 		{"test_one", "path.four", false},
 	}
 
