@@ -161,65 +161,65 @@ func TestImages(t *testing.T) {
 	}
 }
 
-func TestImagesWithManifests(t *testing.T) {
-	cases := []struct {
-		regIndex      int
-		expectedNames string
-		expectedOrg   string
-		expectedReg   string
-		errStr        string
-	}{
-		{0, "[addition-job-0.0.1-seed:1.0.0 extractor-0.1.0-seed:0.1.0 gpu-test-1.0.0-seed:1.0.0 my-job-0.1.0-seed:0.1.0 my-job-0.1.2-seed:2.0.0 my-job-1.0.0-seed:0.1.0]", "geointseed", "docker.io", ""},
-		{1, "[my-job-0.1.0-seed:0.1.0]", "", "localhost:5000", ""},
-		{2, "[]", "geointseed-typo", "docker.io", ""},
-	}
+// func TestImagesWithManifests(t *testing.T) {
+// 	cases := []struct {
+// 		regIndex      int
+// 		expectedNames string
+// 		expectedOrg   string
+// 		expectedReg   string
+// 		errStr        string
+// 	}{
+// 		{0, "[addition-job-0.0.1-seed:1.0.0 extractor-0.1.0-seed:0.1.0 gpu-test-1.0.0-seed:1.0.0 my-job-0.1.0-seed:0.1.0 my-job-0.1.2-seed:2.0.0 my-job-1.0.0-seed:0.1.0]", "geointseed", "docker.io", ""},
+// 		{1, "[my-job-0.1.0-seed:0.1.0]", "", "localhost:5000", ""},
+// 		{2, "[]", "geointseed-typo", "docker.io", ""},
+// 	}
 
-	regs, err := CreateTestRegistries()
+// 	regs, err := CreateTestRegistries()
 
-	if regs == nil || err != nil {
-		t.Errorf("Error creating test registries: %v\n", err)
-	}
+// 	if regs == nil || err != nil {
+// 		t.Errorf("Error creating test registries: %v\n", err)
+// 	}
 
-	for _, c := range cases {
-		reg := regs[c.regIndex]
+// 	for _, c := range cases {
+// 		reg := regs[c.regIndex]
 
-		images, err := reg.ImagesWithManifests()
-		names := []string{}
-		for _, i := range images {
-			names = append(names, i.Name)
-			seed, err := objects.SeedFromManifestString(i.Manifest)
-			if err != nil {
-				t.Errorf("Error parsing seed manifest for %v/%v/%v, %v", i.Registry, i.Org, i.Name, err)
-			}
-			if !strings.Contains(i.Name, seed.Job.Name) {
-				t.Errorf("ImagesWithManifests name: %v does not match up with manifest name: %v\n", i.Name, seed.Job.Name)
-			}
-			if !strings.Contains(i.Name, seed.Job.JobVersion) {
-				t.Errorf("ImagesWithManifests name: %v does not match up with manifest job version: %v\n", i.Name, seed.Job.JobVersion)
-			}
-			if err == nil && c.expectedOrg != i.Org {
-				t.Errorf("ImagesWithManifests org %v does not match returned image org %v\n", i.Org, c.expectedOrg)
-			}
-			if err == nil && c.expectedReg != i.Registry {
-				t.Errorf("ImagesWithManifests registry %v does not match returned image registry %v\n", i.Registry, c.expectedReg)
-			}
-		}
+// 		images, err := reg.ImagesWithManifests()
+// 		names := []string{}
+// 		for _, i := range images {
+// 			names = append(names, i.Name)
+// 			seed, err := objects.SeedFromManifestString(i.Manifest)
+// 			if err != nil {
+// 				t.Errorf("Error parsing seed manifest for %v/%v/%v, %v", i.Registry, i.Org, i.Name, err)
+// 			}
+// 			if !strings.Contains(i.Name, seed.Job.Name) {
+// 				t.Errorf("ImagesWithManifests name: %v does not match up with manifest name: %v\n", i.Name, seed.Job.Name)
+// 			}
+// 			if !strings.Contains(i.Name, seed.Job.JobVersion) {
+// 				t.Errorf("ImagesWithManifests name: %v does not match up with manifest job version: %v\n", i.Name, seed.Job.JobVersion)
+// 			}
+// 			if err == nil && c.expectedOrg != i.Org {
+// 				t.Errorf("ImagesWithManifests org %v does not match returned image org %v\n", i.Org, c.expectedOrg)
+// 			}
+// 			if err == nil && c.expectedReg != i.Registry {
+// 				t.Errorf("ImagesWithManifests registry %v does not match returned image registry %v\n", i.Registry, c.expectedReg)
+// 			}
+// 		}
 
-		sort.Strings(names)
+// 		sort.Strings(names)
 
-		resultStr := fmt.Sprintf("%s", names)
+// 		resultStr := fmt.Sprintf("%s", names)
 
-		if err == nil && c.expectedNames != resultStr {
-			t.Errorf("ImagesWithManifests returned %v, expected %v\n", resultStr, c.expectedNames)
-		}
-		if err != nil && !strings.Contains(err.Error(), c.errStr) {
-			t.Errorf("ImagesWithManifests returned an error: %v\n expected %v", err, c.errStr)
-		}
-		if err == nil && c.errStr != "" {
-			t.Errorf("ImagesWithManifests did not return an error when one was expected: %v", c.errStr)
-		}
-	}
-}
+// 		if err == nil && c.expectedNames != resultStr {
+// 			t.Errorf("ImagesWithManifests returned %v, expected %v\n", resultStr, c.expectedNames)
+// 		}
+// 		if err != nil && !strings.Contains(err.Error(), c.errStr) {
+// 			t.Errorf("ImagesWithManifests returned an error: %v\n expected %v", err, c.errStr)
+// 		}
+// 		if err == nil && c.errStr != "" {
+// 			t.Errorf("ImagesWithManifests did not return an error when one was expected: %v", c.errStr)
+// 		}
+// 	}
+// }
 
 func TestGetImageManifest(t *testing.T) {
 	cases := []struct {
