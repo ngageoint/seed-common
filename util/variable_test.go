@@ -16,8 +16,8 @@ func TestGetNormalizedVariable(t *testing.T) {
 	}{
 		{"abc-def", "ABC_DEF"},
 		{"ABC_def", "ABC_DEF"},
-		{"12345", ""},
-		{"123_ab-CD", "_AB_CD"},
+		{"12345", "12345"},
+		{"123_ab-CD", "123_AB_CD"},
 	}
 
 	for _, c := range cases {
@@ -56,7 +56,7 @@ func TestIsInUse(t *testing.T) {
 	}{
 		{"test", "path.one", false},
 		{"test", "path.two", true},
-		{"test1", "path.three", true},
+		{"test1", "path.three", false},
 		{"test_one", "path.four", false},
 	}
 
