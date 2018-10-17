@@ -213,12 +213,10 @@ func GetManifestLabel(seedFileName string) string {
 			err.Error())
 	}
 
-	util.PrintUtil("GetManifestLabel.seedbytes:\n%s\n", string(seedbytes))
-
 	// Escape forward slashes and dollar signs
 	seed := string(seedbytes)
-	// seed = strings.Replace(seed, "$", "\\$", -1)
-	// seed = strings.Replace(seed, "/", "\\\\/", -1)
+	seed = strings.Replace(seed, "$", "\\$", -1)
+	seed = strings.Replace(seed, "/", "\\/", -1)
 
 	return seed
 }
