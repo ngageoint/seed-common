@@ -7,7 +7,8 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
-	"strings"
+	"strconv"
+	// "strings"
 
 	"github.com/ngageoint/seed-common/constants"
 	"github.com/ngageoint/seed-common/util"
@@ -212,10 +213,12 @@ func GetManifestLabel(seedFileName string) string {
 			err.Error())
 	}
 
+	util.PrintUtil("GetManifestLabel.seedbytes:\n%s\n", string(seedbytes))
+
 	// Escape forward slashes and dollar signs
 	seed := string(seedbytes)
-	seed = strings.Replace(seed, "$", "\\$", -1)
-	seed = strings.Replace(seed, "/", "\\/", -1)
+	// seed = strings.Replace(seed, "$", "\\$", -1)
+	// seed = strings.Replace(seed, "/", "\\\\/", -1)
 
 	return seed
 }
@@ -309,7 +312,13 @@ func SeedFromManifestFile(seedFileName string) Seed {
 func SeedFromManifestString(manifest string) (Seed, error) {
 	seed := &Seed{}
 
-	err := json.Unmarshal([]byte(manifest), &seed)
+	util.PrintUtil("SeedFromManifestString.manifest:\n%s\n", manifest)
+	manifest, err := strconv.Unquote(manifest)
+	if err != nil {
+		util.PrintUtil("ERROR: Error unquoting manifest: %s\n", err.Error())
+	}
+	util.PrintUtil("Unquoted manifest:\n%s\nUnmarshalling....", manifest)
+	err = json.Unmarshal([]byte(manifest), &seed)
 	if err != nil {
 		util.PrintUtil("ERROR: Error unmarshalling seed: %s\n", err.Error())
 	}
