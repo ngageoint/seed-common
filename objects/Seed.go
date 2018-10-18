@@ -310,6 +310,9 @@ func SeedFromManifestFile(seedFileName string) Seed {
 func SeedFromManifestString(manifest string) (Seed, error) {
 	seed := &Seed{}
 
+	// unescape special characters 
+	manifest = strings.Replace(manifest, "\\$", "$", -1)
+	manifest = strings.Replace(manifest, "\\/", "/", -1)
 	manifest, err := strconv.Unquote(manifest)
 	if err != nil {
 		util.PrintUtil("ERROR: Error unquoting manifest: %s\n", err.Error())
