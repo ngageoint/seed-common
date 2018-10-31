@@ -161,6 +161,7 @@ func Tag(origImg, img string) error {
 	// Run docker tag
 	if img != origImg {
 		PrintUtil("INFO: Tagging image %s as %s\n", origImg, img)
+		PrintUtil("INFO: Running Docker command:\ndocker tag %s %s\n", origImg, img)
 		tagCmd := exec.Command("docker", "tag", origImg, img)
 		tagCmd.Stderr = io.MultiWriter(os.Stderr, &errs)
 		tagCmd.Stdout = os.Stderr
@@ -184,6 +185,7 @@ func Push(img string) error {
 
 	// docker push
 	PrintUtil("INFO: Performing docker push %s\n", img)
+	PrintUtil("INFO: Running Docker command:\ndocker push %s\n", img)
 	errs.Reset()
 	pushCmd := exec.Command("docker", "push", img)
 	pushCmd.Stderr = io.MultiWriter(os.Stderr, &errs)
@@ -211,6 +213,7 @@ func RemoveImage(img string) error {
 	var errs bytes.Buffer
 
 	PrintUtil("INFO: Removing local image %s\n", img)
+	PrintUtil("INFO: Running Docker command:\ndocker rmi %s\n", img)
 	rmiCmd := exec.Command("docker", "rmi", img)
 	rmiCmd.Stderr = io.MultiWriter(os.Stderr, &errs)
 	rmiCmd.Stdout = os.Stdout
@@ -317,6 +320,12 @@ func DockerPull(image, registry, org, username, password string) (string, error)
 	var errs, out bytes.Buffer
 	// pull image
 	pullArgs := []string{"pull", remoteImage}
+
+	PrintUtil("INFO: Running Docker command:\ndocker ")
+	for _, s := range pullArgs {
+		PrintUtil("%s ", s)
+	}
+	PrintUtil("\n")
 	pullCmd := exec.Command("docker", pullArgs...)
 	pullCmd.Stderr = io.MultiWriter(os.Stderr, &errs)
 	pullCmd.Stdout = &out
