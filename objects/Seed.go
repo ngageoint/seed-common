@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
-	"strconv"
 	"strings"
 
 	"github.com/ngageoint/seed-common/constants"
@@ -310,14 +309,7 @@ func SeedFromManifestFile(seedFileName string) Seed {
 func SeedFromManifestString(manifest string) (Seed, error) {
 	seed := &Seed{}
 
-	// unescape special characters 
-	manifest = strings.Replace(manifest, "\\$", "$", -1)
-	manifest = strings.Replace(manifest, "\\/", "/", -1)
-	manifest, err := strconv.Unquote(manifest)
-	if err != nil {
-		util.PrintUtil("ERROR: Error unquoting manifest: %s\n", err.Error())
-	}
-	err = json.Unmarshal([]byte(manifest), &seed)
+	err := json.Unmarshal([]byte(manifest), &seed)
 	if err != nil {
 		util.PrintUtil("ERROR: Error unmarshalling seed: %s\n", err.Error())
 	}
