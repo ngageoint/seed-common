@@ -126,10 +126,8 @@ func (registry *DockerHubRegistry) GetImageManifest(repoName, tag string) (strin
 	manifest := ""
 	orgRepoName := registry.Org + "/" + repoName
 	mv2, err := registry.v2Base.ManifestV2(orgRepoName, tag)
-	registry.Print("manifest: %s\n", mv2)
 	if err == nil {
 		resp, err := registry.v2Base.DownloadLayer(orgRepoName, mv2.Config.Digest)
-		registry.Print("response: %s\n", resp)
 		if err == nil {
 			manifest, err = objects.GetSeedManifestFromBlob(resp)
 		}
