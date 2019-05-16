@@ -36,11 +36,11 @@ func NewV2Registry(url, org, username, password string) (RepositoryRegistry, err
 }
 
 func NewDockerHubRegistry(url, org, username, password string) (RepositoryRegistry, error) {
-	hub, err := dockerhub.New(url, org)
+	hub, err := dockerhub.New(url, org, username, password)
 	if err != nil {
 		if strings.Contains(url, "https://") {
 			httpFallback := strings.Replace(url, "https://", "http://", 1)
-			hub, err = dockerhub.New(httpFallback, org)
+			hub, err = dockerhub.New(httpFallback, org, username, password)
 		}
 	}
 

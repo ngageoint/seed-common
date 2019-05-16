@@ -1,10 +1,10 @@
 package dockerhub
 
 import (
+    "errors"
 	"strings"
 
 	"github.com/ngageoint/seed-common/objects"
-	"github.com/ngageoint/seed-common/util"
 )
 
 type repositoriesResponse struct {
@@ -124,14 +124,17 @@ func (registry *DockerHubRegistry) ImagesWithManifests() ([]objects.Image, error
 
 func (registry *DockerHubRegistry) GetImageManifest(repoName, tag string) (string, error) {
 	manifest := ""
-	//TODO: find better, lightweight way to get manifest on low side
-	image := repoName + ":" + tag
-	imageName, err := util.DockerPull(image, "docker.io", registry.Org, "", "")
+	mv2, err := registry.v2Base.ManifestV2(repoName, tag)
 	if err == nil {
-		manifest, err = util.GetSeedManifestFromImage(imageName)
+		resp, err := registry.v2Base.DownloadLayer(repoName, mv2.Config.Digest)
+		if err == nil {
+			manifest, err = objects.GetSeedManifestFromBlob(resp)
+		}
 	}
-	if err != nil {
-		registry.Print("ERROR: Could not get manifest: %s\n", err.Error())
+
+	if err == nil && manifest == "" {
+		err = errors.New("Empty seed manifest!")
 	}
+
 	return manifest, err
 }
