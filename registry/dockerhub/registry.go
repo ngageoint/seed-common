@@ -27,13 +27,13 @@ func New(registryUrl, org, username, password string) (*DockerHubRegistry, error
 	}
 	url := strings.TrimSuffix(registryUrl, "/")
 
-	reg, _ := registry.New("https://registry-1.docker.io", username, password)
+	reg, _ := registry.New("https://registry-1.docker.io/", username, password)
 
 	registry := &DockerHubRegistry{
 		URL:    url,
 		Client: &http.Client{},
 		Org:    org,
-		v2Base:   reg,
+		v2Base: reg,
 		Print:  util.PrintUtil,
 	}
 
