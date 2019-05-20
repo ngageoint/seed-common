@@ -233,6 +233,7 @@ func TestGetImageManifest(t *testing.T) {
 	}{
 		{0, "asdfasdf", "aaaa", "", "", "", "unexpected end of JSON input"},
 		{0, "extractor-0.1.0-seed", "0.1.0", "extractor", "0.1.0", "0.1.0", ""},
+		{0, "gpu-test-1.0.0-seed", "1.0.0", "gpu-test", "1.0.0", "1.0.0", ""},
 		{1, "my-job-0.1.0-seed", "0.1.0", "my-job", "0.1.0", "0.1.0", ""},
 	}
 

@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/heroku/docker-registry-client/registry"
 	"github.com/ngageoint/seed-common/constants"
 	"github.com/ngageoint/seed-common/util"
 )
@@ -15,19 +16,24 @@ type DockerHubRegistry struct {
 	URL    string
 	Client *http.Client
 	Org    string
+	v2Base *registry.Registry
 	Print  util.PrintCallback
 }
 
 //New creates a new docker hub registry from the given URL
-func New(registryUrl, org string) (*DockerHubRegistry, error) {
+func New(registryUrl, org, username, password string) (*DockerHubRegistry, error) {
 	if util.PrintUtil == nil {
 		util.InitPrinter(util.PrintErr)
 	}
 	url := strings.TrimSuffix(registryUrl, "/")
+
+	reg, _ := registry.New("https://registry-1.docker.io/", username, password)
+
 	registry := &DockerHubRegistry{
 		URL:    url,
 		Client: &http.Client{},
 		Org:    org,
+		v2Base: reg,
 		Print:  util.PrintUtil,
 	}
 

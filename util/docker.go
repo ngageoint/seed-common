@@ -288,6 +288,33 @@ func StartRegistry() error {
 	return nil
 }
 
+func ResetTestdata() error {
+	PrintUtil("Resetting testdata........................\n.\n.\n.\n.\n.\n")
+	var errs bytes.Buffer
+
+	PrintUtil("INFO: Resetting testdata...\n")
+	cmd := exec.Command("../resetTestdata.sh")
+	cmd.Stderr = io.MultiWriter(os.Stderr, &errs)
+	cmd.Stdout = os.Stdout
+
+	err := cmd.Run()
+
+	// check for errors on stderr first; it will likely have more explanation than cmd.Run
+	if errs.String() != "" {
+		PrintUtil("ERROR: Error resetting testdata. %s\n", errs.String())
+		PrintUtil("Exiting seed...\n")
+		return errors.New(errs.String())
+	}
+
+	if err != nil {
+		PrintUtil("ERROR: Error resetting testdata. %s\n",
+			err.Error())
+		return err
+	}
+
+	return nil
+}
+
 //Dockerpull pulls specified image from remote repository (default docker.io)
 //returns the name of the remote image retrieved, if any
 func DockerPull(image, registry, org, username, password string) (string, error) {
