@@ -9,6 +9,12 @@ import (
 
 type PrintCallback func(format string, args ...interface{})
 
+func init() {
+	if PrintUtil == nil {
+		InitPrinter(PrintErr)
+	}
+}
+
 /*
  * Print messages to stderr
  */
