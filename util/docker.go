@@ -336,8 +336,9 @@ func DockerPull(image, registry, org, username, password string) (string, error)
 		registry = constants.DefaultRegistry
 	}
 
-	registry = strings.Replace(registry, "https://hub.docker.com/", "docker.io", 1)
-
+	registry = strings.Replace(registry, "https://hub.docker.com", "docker.io", 1)
+	registry = strings.TrimSuffix(registry, "/")
+	
 	remoteImage := fmt.Sprintf("%s/%s", registry, image)
 
 	if org != "" {
