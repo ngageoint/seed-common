@@ -6,7 +6,7 @@ import (
 )
 
 func init() {
-	InitPrinter(PrintErr)
+	InitPrinter(Quiet, nil, nil)
 }
 
 func TestGetNormalizedVariable(t *testing.T) {

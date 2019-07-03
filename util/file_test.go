@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	InitPrinter(PrintErr)
+	InitPrinter(Quiet, nil, nil)
 }
 
 func TestGetFullPath(t *testing.T) {

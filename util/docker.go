@@ -129,7 +129,11 @@ func Login(registry, username, password string) error {
 	var errs, out bytes.Buffer
 	args := []string{"login", "-u", username, "-p", password, registry}
 	cmd := exec.Command("docker", args...)
-	cmd.Stderr = io.MultiWriter(os.Stderr, &errs)
+	if StdErr != nil {
+		cmd.Stderr = io.MultiWriter(StdErr, &errs)
+	} else {
+		cmd.Stderr = &errs
+	}
 	cmd.Stdout = &out
 
 	err := cmd.Run()
@@ -163,8 +167,12 @@ func Tag(origImg, img string) error {
 		PrintUtil("INFO: Tagging image %s as %s\n", origImg, img)
 		PrintUtil("INFO: Running Docker command:\ndocker tag %s %s\n", origImg, img)
 		tagCmd := exec.Command("docker", "tag", origImg, img)
-		tagCmd.Stderr = io.MultiWriter(os.Stderr, &errs)
-		tagCmd.Stdout = os.Stderr
+		if StdErr != nil {
+			tagCmd.Stderr = io.MultiWriter(StdErr, &errs)
+		} else {
+			tagCmd.Stderr = &errs
+		}
+		tagCmd.Stdout = StdErr
 
 		if err := tagCmd.Run(); err != nil {
 			PrintUtil("ERROR: Error executing docker tag. %s\n",
@@ -188,8 +196,13 @@ func Push(img string) error {
 	PrintUtil("INFO: Running Docker command:\ndocker push %s\n", img)
 	errs.Reset()
 	pushCmd := exec.Command("docker", "push", img)
-	pushCmd.Stderr = io.MultiWriter(os.Stderr, &errs)
-	pushCmd.Stdout = os.Stdout
+	if StdErr != nil {
+		pushCmd.Stderr = io.MultiWriter(StdErr, &errs)
+	} else {
+		pushCmd.Stderr = &errs
+	}
+	pushCmd.Stdout = StdErr
+
 
 	// Run docker push
 	if err := pushCmd.Run(); err != nil {
@@ -215,8 +228,12 @@ func RemoveImage(img string) error {
 	PrintUtil("INFO: Removing local image %s\n", img)
 	PrintUtil("INFO: Running Docker command:\ndocker rmi %s\n", img)
 	rmiCmd := exec.Command("docker", "rmi", img)
-	rmiCmd.Stderr = io.MultiWriter(os.Stderr, &errs)
-	rmiCmd.Stdout = os.Stdout
+	if StdErr != nil {
+		rmiCmd.Stderr = io.MultiWriter(StdErr, &errs)
+	} else {
+		rmiCmd.Stderr = &errs
+	}
+	rmiCmd.Stdout = StdErr
 
 	if err := rmiCmd.Run(); err != nil {
 		PrintUtil("ERROR: Error executing docker rmi. %s\n",
@@ -241,8 +258,12 @@ func RestartRegistry() error {
 
 	PrintUtil("INFO: Restarting test registry...\n")
 	cmd := exec.Command("../restartRegistry.sh")
-	cmd.Stderr = io.MultiWriter(os.Stderr, &errs)
-	cmd.Stdout = os.Stdout
+	if StdErr != nil {
+		cmd.Stderr = io.MultiWriter(StdErr, &errs)
+	} else {
+		cmd.Stderr = &errs
+	}
+	cmd.Stdout = StdErr
 
 	err := cmd.Run()
 
@@ -268,8 +289,12 @@ func StartRegistry() error {
 
 	PrintUtil("INFO: Starting test registry...\n")
 	cmd := exec.Command("../startRegistry.sh")
-	cmd.Stderr = io.MultiWriter(os.Stderr, &errs)
-	cmd.Stdout = os.Stdout
+	if StdErr != nil {
+		cmd.Stderr = io.MultiWriter(StdErr, &errs)
+	} else {
+		cmd.Stderr = &errs
+	}
+	cmd.Stdout = StdErr
 
 	err := cmd.Run()
 
@@ -294,8 +319,12 @@ func ResetTestdata() error {
 
 	PrintUtil("INFO: Resetting testdata...\n")
 	cmd := exec.Command("../resetTestdata.sh")
-	cmd.Stderr = io.MultiWriter(os.Stderr, &errs)
-	cmd.Stdout = os.Stdout
+	if StdErr != nil {
+		cmd.Stderr = io.MultiWriter(StdErr, &errs)
+	} else {
+		cmd.Stderr = &errs
+	}
+	cmd.Stdout = StdErr
 
 	err := cmd.Run()
 
@@ -355,7 +384,11 @@ func DockerPull(image, registry, org, username, password string) (string, error)
 	}
 	PrintUtil("\n")
 	pullCmd := exec.Command("docker", pullArgs...)
-	pullCmd.Stderr = io.MultiWriter(os.Stderr, &errs)
+	if StdErr != nil {
+		pullCmd.Stderr = io.MultiWriter(StdErr, &errs)
+	} else {
+		pullCmd.Stderr = &errs
+	}
 	pullCmd.Stdout = &out
 
 	err := pullCmd.Run()

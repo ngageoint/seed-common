@@ -12,7 +12,7 @@ import (
 )
 
 func TestMain(m *testing.M) {
-	util.InitPrinter(util.PrintErr)
+	util.InitPrinter(util.PrintErr, util.StdErr, util.StdErr)
 
 	code := m.Run()
 

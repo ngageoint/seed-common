@@ -2,6 +2,7 @@ package util
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"time"
@@ -31,9 +32,13 @@ func Quiet(format string, args ...interface{}) {
 }
 
 var PrintUtil PrintCallback
+var StdErr io.Writer
+var StdOut io.Writer
 
-func InitPrinter(callback PrintCallback) {
+func InitPrinter(callback PrintCallback, stderr, stdout io.Writer) {
 	PrintUtil = callback
+	StdErr = stderr
+	StdOut = stdout
 }
 
 //TimeTrack function for timing function calls. Usage:
