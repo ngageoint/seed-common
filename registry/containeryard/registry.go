@@ -3,6 +3,7 @@ package containeryard
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/heroku/docker-registry-client/registry"
@@ -28,7 +29,7 @@ func (r *ContainerYardRegistry) Name() string {
 //New creates a new docker hub registry from the given URL
 func New(registryUrl, org, username, password string) (*ContainerYardRegistry, error) {
 	if util.PrintUtil == nil {
-		util.InitPrinter(util.PrintErr)
+		util.InitPrinter(util.PrintErr, os.Stderr, os.Stdout)
 	}
 	url := strings.TrimSuffix(registryUrl, "/")
 	reg, err := registry.New(url, username, password)

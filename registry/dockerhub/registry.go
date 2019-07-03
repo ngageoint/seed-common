@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/heroku/docker-registry-client/registry"
@@ -23,7 +24,7 @@ type DockerHubRegistry struct {
 //New creates a new docker hub registry from the given URL
 func New(registryUrl, org, username, password string) (*DockerHubRegistry, error) {
 	if util.PrintUtil == nil {
-		util.InitPrinter(util.PrintErr)
+		util.InitPrinter(util.PrintErr, os.Stderr, os.Stdout)
 	}
 	url := strings.TrimSuffix(registryUrl, "/")
 

@@ -2,6 +2,7 @@ package v2
 
 import (
 	"errors"
+	"os"
 	"strings"
 
 	"github.com/heroku/docker-registry-client/registry"
@@ -20,7 +21,7 @@ type v2registry struct {
 
 func New(url, org, username, password string) (*v2registry, error) {
 	if util.PrintUtil == nil {
-		util.InitPrinter(util.PrintErr)
+		util.InitPrinter(util.PrintErr, os.Stderr, os.Stdout)
 	}
 
 	reg, err := registry.New(url, username, password)

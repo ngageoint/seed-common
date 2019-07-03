@@ -129,7 +129,7 @@ func Login(registry, username, password string) error {
 	var errs, out bytes.Buffer
 	args := []string{"login", "-u", username, "-p", password, registry}
 	cmd := exec.Command("docker", args...)
-	cmd.Stderr = io.MultiWriter(os.Stderr, &errs)
+	cmd.Stderr = io.MultiWriter(StdErr, &errs)
 	cmd.Stdout = &out
 
 	err := cmd.Run()
@@ -188,8 +188,9 @@ func Push(img string) error {
 	PrintUtil("INFO: Running Docker command:\ndocker push %s\n", img)
 	errs.Reset()
 	pushCmd := exec.Command("docker", "push", img)
-	pushCmd.Stderr = io.MultiWriter(os.Stderr, &errs)
-	pushCmd.Stdout = os.Stdout
+	pushCmd.Stderr = io.MultiWriter(StdErr, &errs)
+	pushCmd.Stdout = StdOut
+
 
 	// Run docker push
 	if err := pushCmd.Run(); err != nil {
