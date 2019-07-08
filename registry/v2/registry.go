@@ -38,7 +38,7 @@ func (v2 *v2registry) Name() string {
 }
 
 func (v2 *v2registry) Ping() error {
-	_, err := v2.r.Repositories()
+	err := v2.r.Ping()
 	return err
 }
 
