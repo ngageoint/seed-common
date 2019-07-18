@@ -19,6 +19,7 @@ type RepositoryRegistry interface {
 	Images() ([]string, error)
 	ImagesWithManifests() ([]objects.Image, error)
 	GetImageManifest(repoName, tag string) (string, error)
+	RemoveImage(reponame, tag string) error
 }
 
 type RepoRegistryFactory func(url, org, username, password string) (RepositoryRegistry, error)

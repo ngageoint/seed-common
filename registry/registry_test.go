@@ -268,6 +268,48 @@ func TestGetImageManifest(t *testing.T) {
 	}
 }
 
+func TestRemoveImage(t *testing.T) {
+	cases := []struct {
+		regIndex        int
+		repoName        string
+		tag             string
+		expectedResult  bool
+		errStr          string
+	}{
+		{0, "asdfasdf", "aaaa", false, "UNAUTHORIZED"},
+		{1, "my-job-0.1.0-seed", "0.1.0", true, ""},
+	}
+
+	regs, err := CreateTestRegistries()
+
+	if regs == nil || err != nil {
+		t.Errorf("Error creating test registries: %v\n", err)
+	}
+
+	for _, c := range cases {
+		reg := regs[c.regIndex]
+
+		err := reg.RemoveImage(c.repoName, c.tag)
+
+		_, err2 := reg.GetImageManifest(c.repoName, c.tag)
+
+		if err == nil && c.expectedResult == false {
+			t.Errorf("RemoveImage succeeded when it was expected to fail\n")
+		}
+		if err != nil && c.expectedResult == true {
+			t.Errorf("RemoveImage failed when it was expected to succeed\n")
+		}
+		if err != nil && !strings.Contains(err.Error(), c.errStr) {
+			t.Errorf("RemoveImage returned an error: %v\n expected %v", err, c.errStr)
+		}
+
+		if c.expectedResult && err == nil && err2 == nil {
+			t.Errorf("RemoveImage did not remove image %v from registry!", c.repoName)
+		}
+	}
+}
+
+
 func CreateTestRegistries() ([]RepositoryRegistry, error) {
 	cases := []struct {
 		url      string
