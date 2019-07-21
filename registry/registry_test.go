@@ -297,7 +297,7 @@ func TestRemoveImage(t *testing.T) {
 			t.Errorf("RemoveImage succeeded when it was expected to fail\n")
 		}
 		if err != nil && c.expectedResult == true {
-			t.Errorf("RemoveImage failed when it was expected to succeed\n")
+			t.Errorf("RemoveImage failed when it was expected to succeed. Error: %v\n", err)
 		}
 		if err != nil && !strings.Contains(err.Error(), c.errStr) {
 			t.Errorf("RemoveImage returned an error: %v\n expected %v", err, c.errStr)

@@ -142,9 +142,9 @@ func (registry *DockerHubRegistry) GetImageManifest(repoName, tag string) (strin
 
 func (registry *DockerHubRegistry) RemoveImage(repoName, tag string) error {
 	orgRepoName := registry.Org + "/" + repoName
-	mv2, err := registry.v2Base.ManifestV2(orgRepoName, tag)
+	digest, err := registry.v2Base.ManifestDigestV2(orgRepoName, tag)
 	if err == nil {
-		err = registry.v2Base.DeleteManifest(orgRepoName, mv2.Config.Digest)
+		err = registry.v2Base.DeleteManifest(orgRepoName, digest)
 	}
 
 	return err
