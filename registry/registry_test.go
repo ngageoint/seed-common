@@ -276,7 +276,7 @@ func TestRemoveImage(t *testing.T) {
 		expectedResult  bool
 		errStr          string
 	}{
-		{0, "asdfasdf", "aaaa", false, "UNAUTHORIZED"},
+		{0, "asdfasdf", "aaaa", false, "401"},
 		{1, "my-job-0.1.0-seed", "0.1.0", true, ""},
 	}
 
