@@ -359,16 +359,16 @@ func GetSeedManifestFromBlob(blob io.ReadCloser) (string, error) {
 	return seedStr, err
 }
 
-func GetImageNameFromManifest(manifest string) (string, error) {
+func GetImageNameFromManifest(manifest, directory string) (string, error) {
 	seedFileName := ""
 	if manifest != "." {
-		seedFileName = util.GetFullPath(manifest, "")
+		seedFileName = util.GetFullPath(manifest, directory)
 		if _, err := os.Stat(seedFileName); os.IsNotExist(err) {
 			util.PrintUtil("ERROR: Seed manifest not found. %s\n", err.Error())
 			return "", err
 		}
 	} else {
-		temp, err := util.SeedFileName(".")
+		temp, err := util.SeedFileName(directory)
 		seedFileName = temp
 		if err != nil && !os.IsNotExist(err) {
 			util.PrintUtil("ERROR: %s\n", err.Error())
