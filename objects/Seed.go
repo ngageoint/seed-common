@@ -370,7 +370,7 @@ func GetImageNameFromManifest(manifest, directory string) (string, error) {
 	} else {
 		temp, err := util.SeedFileName(directory)
 		seedFileName = temp
-		if err != nil && !os.IsNotExist(err) {
+		if err != nil {
 			util.PrintUtil("ERROR: %s\n", err.Error())
 			return "", err
 		}
