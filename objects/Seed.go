@@ -371,12 +371,12 @@ func GetImageNameFromManifest(manifest, directory string) (string, error) {
 		temp, err := util.SeedFileName(directory)
 		seedFileName = temp
 		if err != nil {
-			util.PrintUtil("ERROR: %s\n", err.Error())
+			util.PrintUtil("ERROR: Seed manifest not found. Error=%s\n", err.Error())
 			return "", err
 		}
 	}
 
-	util.PrintUtil("INFO: Attempting to get image name from manifest: %s", seedFileName)
+	util.PrintUtil("INFO: Found manifest: %s\n", seedFileName)
 
 	// retrieve seed from seed manifest
 	seed := SeedFromManifestFile(seedFileName)
