@@ -139,3 +139,13 @@ func (registry *DockerHubRegistry) GetImageManifest(repoName, tag string) (strin
 
 	return manifest, err
 }
+
+func (registry *DockerHubRegistry) RemoveImage(repoName, tag string) error {
+	orgRepoName := registry.Org + "/" + repoName
+	digest, err := registry.v2Base.ManifestDigestV2(orgRepoName, tag)
+	if err == nil {
+		err = registry.v2Base.DeleteManifest(orgRepoName, digest)
+	}
+
+	return err
+}

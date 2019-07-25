@@ -192,3 +192,12 @@ func (registry *ContainerYardRegistry) GetImageManifest(repoName, tag string) (s
 
 	return manifest, err
 }
+
+func (registry *ContainerYardRegistry) RemoveImage(repoName, tag string) error {
+	digest, err := registry.v2Base.ManifestDigestV2(repoName, tag)
+	if err == nil {
+		err = registry.v2Base.DeleteManifest(repoName, digest)
+	}
+
+	return err
+}

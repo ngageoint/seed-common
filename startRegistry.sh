@@ -8,7 +8,7 @@ if [ ! "$(docker ps -q --filter ancestor=registry:2)" ]; then
         docker rm $(docker ps -a -q  --filter ancestor=registry:2) -f
     fi
     # run your container
-    docker run -d -p 5000:5000 --name registry -v `pwd`/auth:/auth -e "REGISTRY_AUTH=htpasswd" -e "REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm" -e REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd registry:2
+    docker run -d -p 5000:5000 --name registry -v `pwd`/auth:/auth -e "REGISTRY_AUTH=htpasswd" -e "REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm" -e REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd -e REGISTRY_STORAGE_DELETE_ENABLED=true registry:2
 fi
 
 i=0

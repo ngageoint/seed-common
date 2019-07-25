@@ -121,3 +121,13 @@ func (v2 *v2registry) GetImageManifest(repoName, tag string) (string, error) {
 
 	return manifest, err
 }
+
+func (v2 *v2registry) RemoveImage(repoName, tag string) error {
+	digest, err := v2.r.ManifestDigestV2(repoName, tag)
+
+	if err == nil {
+		err = v2.r.DeleteManifest(repoName, digest)
+	}
+
+	return err
+}

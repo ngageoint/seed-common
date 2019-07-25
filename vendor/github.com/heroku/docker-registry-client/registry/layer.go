@@ -21,6 +21,24 @@ func (registry *Registry) DownloadLayer(repository string, digest digest.Digest)
 	return resp.Body, nil
 }
 
+func (registry *Registry) DeleteLayer(repository string, digest digest.Digest) error {
+	url := registry.url("/v2/%s/blobs/%s", repository, digest)
+	registry.Logf("registry.layer.delete url=%s repository=%s digest=%s", url, repository, digest)
+
+	req, err := http.NewRequest("DELETE", url, nil)
+	if err != nil {
+		return err
+	}
+	resp, err := registry.Client.Do(req)
+	if resp != nil {
+		defer resp.Body.Close()
+	}
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (registry *Registry) UploadLayer(repository string, digest digest.Digest, content io.Reader) error {
 	uploadUrl, err := registry.initiateUpload(repository)
 	if err != nil {
