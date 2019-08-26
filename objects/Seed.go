@@ -49,7 +49,7 @@ type Maintainer struct {
 }
 
 type Interface struct {
-	Command  string    `json:"command"`
+	Command  string    `json:"command,omitempty"`
 	Inputs   Inputs    `json:"inputs,omitempty"`
 	Outputs  Outputs   `json:"outputs,omitempty"`
 	Mounts   []Mount   `json:"mounts,omitempty"`
@@ -63,17 +63,17 @@ type Resources struct {
 type Scalar struct {
 	Name            string  `json:"name"`
 	Value           float64 `json:"value"`
-	InputMultiplier float64 `json:"inputMultiplier"`
+	InputMultiplier float64 `json:"inputMultiplier,omitempty"`
 }
 
 type Inputs struct {
-	Files []InFile `json:"files,ommitempty"`
+	Files []InFile `json:"files,omitempty"`
 	Json  []InJson `json:"json,omitempty"`
 }
 
 type InFile struct {
 	Name       string   `json:"name"`
-	MediaTypes []string `json:"mediaTypes"`
+	MediaTypes []string `json:"mediaTypes,omitempty"`
 	Multiple   bool     `json:"multiple"`
 	Partial    bool     `json:"partial"`
 	Required   bool     `json:"required"`
@@ -112,7 +112,7 @@ type Outputs struct {
 
 type OutFile struct {
 	Name      string `json:"name"`
-	MediaType string `json:"mediaType"`
+	MediaType string `json:"mediaType,omitempty"`
 	Multiple  bool   `json:"multiple"`
 	Pattern   string `json:"pattern"`
 	Required  bool   `json:"required"`
@@ -130,7 +130,7 @@ func (o *OutFile) UnmarshalJSON(b []byte) error {
 
 type OutJson struct {
 	Name     string `json:"name"`
-	Key      string `json:"key"`
+	Key      string `json:"key,omitempty"`
 	Type     string `json:"type"`
 	Required bool   `json:"required"`
 }
@@ -148,7 +148,7 @@ func (o *OutJson) UnmarshalJSON(b []byte) error {
 type Mount struct {
 	Name string `json:"name"`
 	Path string `json:"path"`
-	Mode string `json:"mode"`
+	Mode string `json:"mode,omitempty"`
 }
 
 func (o *Mount) UnmarshalJSON(b []byte) error {
@@ -179,9 +179,9 @@ func (o *Setting) UnmarshalJSON(b []byte) error {
 type ErrorMap struct {
 	Code        int    `json:"code"`
 	Name        string `json:"name"`
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	Category    string `json:"category"`
+	Title       string `json:"title,omitempty"`
+	Description string `json:"description,omitempty"`
+	Category    string `json:"category,omitempty"`
 }
 
 func (o *ErrorMap) UnmarshalJSON(b []byte) error {
