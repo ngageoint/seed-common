@@ -64,7 +64,7 @@ func HandleExit() {
 
 //CleanString takes a string and a list of args and returns the formatted string without excess whitespace
 func CleanString(format string, args ...interface{}) string {
-	temp := fmt.Sprintf(format, args)
+	temp := fmt.Sprintf(format, args...)
 	space := regexp.MustCompile(`\s+`)
 	return space.ReplaceAllString(temp, " ")
 }
