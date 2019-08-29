@@ -43,7 +43,22 @@ func (v2 *v2registry) Ping() error {
 }
 
 func (v2 *v2registry) Repositories() ([]string, error) {
-	return v2.r.Repositories()
+	repositories, err := v2.r.Repositories()
+	var repos []string
+	for _, repo := range repositories {
+		if !strings.HasSuffix(repo, "-seed") {
+			continue
+		}
+		if v2.Org != "" && !strings.HasPrefix(repo, v2.Org + "/") {
+			continue
+		}
+		_, err2 := v2.Tags(repo)
+		if err2 != nil {
+			continue
+		}
+		repos = append(repos, repo)
+	}
+	return repos, err
 }
 
 func (v2 *v2registry) Tags(repository string) ([]string, error) {
@@ -60,9 +75,11 @@ func (v2 *v2registry) Images() ([]string, error) {
 		if !strings.HasSuffix(repo, "-seed") {
 			continue
 		}
+		if v2.Org != "" && !strings.HasPrefix(repo, v2.Org + "/") {
+			continue
+		}
 		tags, err := v2.Tags(repo)
 		if err != nil {
-			v2.Print(err.Error())
 			continue
 		}
 		for _, tag := range tags {
@@ -98,7 +115,14 @@ func (v2 *v2registry) ImagesWithManifests() ([]objects.Image, error) {
 			continue
 		}
 
-		imageStruct := objects.Image{Name: imgstr, Registry: v2.Hostname, Org: v2.Org, Manifest: manifest}
+		imgOrg := v2.Org
+		if imgOrg == "" {
+			index := strings.LastIndex("/", imgstr)
+			if index > 0 {
+				imgOrg = imgstr[:index]
+			}
+		}
+		imageStruct := objects.Image{Name: imgstr, Registry: v2.Hostname, Org: imgOrg, Manifest: manifest}
 		images = append(images, imageStruct)
 	}
 

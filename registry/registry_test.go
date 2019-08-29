@@ -56,7 +56,8 @@ func TestRepositories(t *testing.T) {
 		errStr   string
 	}{
 		{0, "[addition-job-0.0.1-seed extractor-0.1.0-seed flip-image-1.0.0-seed grayscale-image-1.0.0-seed my-job-0.1.0-seed my-job-0.1.2-seed my-job-1.0.0-seed]", ""},
-		{1, "[my-job-0.1.0-seed]", ""},
+		{1, "[my-job-0.1.0-seed testorg/my-job-0.1.0-seed]", ""},
+		{3, "[testorg/my-job-0.1.0-seed]", ""},
 	}
 
 	regs, err := CreateTestRegistries()
@@ -130,8 +131,9 @@ func TestImages(t *testing.T) {
 		errStr   string
 	}{
 		{0, "[addition-job-0.0.1-seed:1.0.0 extractor-0.1.0-seed:0.1.0 flip-image-1.0.0-seed:1.0.0 grayscale-image-1.0.0-seed:1.0.0 my-job-0.1.0-seed:0.1.0 my-job-0.1.2-seed:2.0.0 my-job-1.0.0-seed:0.1.0]", ""},
-		{1, "[my-job-0.1.0-seed:0.1.0]", ""},
+		{1, "[my-job-0.1.0-seed:0.1.0 testorg/my-job-0.1.0-seed:0.1.0]", ""},
 		{2, "[]", ""},
+		{3, "[testorg/my-job-0.1.0-seed:0.1.0]", ""},
 	}
 
 	regs, err := CreateTestRegistries()
@@ -320,6 +322,7 @@ func CreateTestRegistries() ([]RepositoryRegistry, error) {
 		{"hub.docker.com", "geointseed", "", ""},
 		{"localhost:5000", "", "testuser", "testpassword"},
 		{"hub.docker.com", "geointseed-typo", "", ""},
+		{"localhost:5000", "testorg", "testuser", "testpassword"},
 	}
 
 	regs := []RepositoryRegistry{}
