@@ -57,6 +57,20 @@ func IsInUse(name string, path string, vars map[string][]string) bool {
 	return false
 }
 
+//IsNormalized checks if the given string is in the proper normalized form
+// Check if the normalized variable name is the same as the given variable nae
+// if it's not, adds the path so it may be printed later
+func IsNormalized(name, path string, vars map[string]string) bool {
+	normName := GetNormalizedVariable(name)
+
+	if result := normName != name; result {
+		vars[name] = path
+		return false
+	}
+
+	return true
+}
+
 //RemoveString returns a new slice of strings without the given string from a slice of strings.
 //If the slice does not contain the string the original slice is returned
 func RemoveString(s []string, r string) []string {
