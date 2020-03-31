@@ -19,23 +19,31 @@ type DockerHubRegistry struct {
 	Org    string
 	v2Base *registry.Registry
 	Print  util.PrintCallback
+	Token  string
 }
 
 //New creates a new docker hub registry from the given URL
-func New(registryUrl, org, username, password string) (*DockerHubRegistry, error) {
+func New(registryUrl, org, username, password, token string) (*DockerHubRegistry, error) {
 	if util.PrintUtil == nil {
 		util.InitPrinter(util.PrintErr, os.Stderr, os.Stdout)
 	}
 	url := strings.TrimSuffix(registryUrl, "/")
-
+	// Create a new request using http
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+	}
+	// add authorization header to the req if token is not blank
+	req.Header.Add("Authorization", "bearer"+token)
 	reg, _ := registry.New("https://registry-1.docker.io/", username, password)
 
+	reg.Client.Do(req)
 	registry := &DockerHubRegistry{
 		URL:    url,
 		Client: &http.Client{},
 		Org:    org,
 		v2Base: reg,
 		Print:  util.PrintUtil,
+		Token:  token,
 	}
 
 	return registry, nil

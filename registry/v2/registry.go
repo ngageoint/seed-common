@@ -19,7 +19,7 @@ type v2registry struct {
 	Print    util.PrintCallback
 }
 
-func New(url, org, username, password string) (*v2registry, error) {
+func New(url, org, username, password, token string) (*v2registry, error) {
 	if util.PrintUtil == nil {
 		util.InitPrinter(util.PrintErr, os.Stderr, os.Stdout)
 	}

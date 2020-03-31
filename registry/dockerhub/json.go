@@ -16,7 +16,12 @@ var (
 // next page URL while updating pointed-to variable with a parsed JSON
 // value. When there are no more pages it returns `ErrNoMorePages`.
 func (registry *DockerHubRegistry) getDockerHubPaginatedJson(url string, response interface{}) (string, error) {
-	resp, err := http.Get(url)
+
+	req, err := http.NewRequest("GET", url, nil)
+	if registry.Token != "" {
+		req.Header.Add("Authorization", "bearer"+registry.Token)
+	}
+	resp, err := registry.Client.Do(req)
 	if err != nil {
 		return "", err
 	}

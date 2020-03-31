@@ -8,7 +8,7 @@ import (
 	"github.com/ngageoint/seed-common/objects"
 	"github.com/ngageoint/seed-common/registry/containeryard"
 	"github.com/ngageoint/seed-common/registry/dockerhub"
-	"github.com/ngageoint/seed-common/registry/v2"
+	v2 "github.com/ngageoint/seed-common/registry/v2"
 )
 
 type RepositoryRegistry interface {
@@ -21,50 +21,50 @@ type RepositoryRegistry interface {
 	GetImageManifest(repoName, tag string) (string, error)
 }
 
-type RepoRegistryFactory func(url, org, username, password string) (RepositoryRegistry, error)
+type RepoRegistryFactory func(url, org, username, password, token string) (RepositoryRegistry, error)
 
-func NewV2Registry(url, org, username, password string) (RepositoryRegistry, error) {
-	v2registry, err := v2.New(url, org, username, password)
+func NewV2Registry(url, org, username, password, token string) (RepositoryRegistry, error) {
+	v2registry, err := v2.New(url, org, username, password, token)
 	if err != nil {
 		if strings.Contains(url, "https://") {
 			httpFallback := strings.Replace(url, "https://", "http://", 1)
-			v2registry, err = v2.New(httpFallback, org, username, password)
+			v2registry, err = v2.New(httpFallback, org, username, password, token)
 		}
 	}
 
 	return v2registry, err
 }
 
-func NewDockerHubRegistry(url, org, username, password string) (RepositoryRegistry, error) {
-	hub, err := dockerhub.New(url, org, username, password)
+func NewDockerHubRegistry(url, org, username, password, token string) (RepositoryRegistry, error) {
+	hub, err := dockerhub.New(url, org, username, password, token)
 	if err != nil {
 		if strings.Contains(url, "https://") {
 			httpFallback := strings.Replace(url, "https://", "http://", 1)
-			hub, err = dockerhub.New(httpFallback, org, username, password)
+			hub, err = dockerhub.New(httpFallback, org, username, password, token)
 		}
 	}
 
 	return hub, err
 }
 
-func NewContainerYardRegistry(url, org, username, password string) (RepositoryRegistry, error) {
-	yard, err := containeryard.New(url, org, username, password)
+func NewContainerYardRegistry(url, org, username, password, token string) (RepositoryRegistry, error) {
+	yard, err := containeryard.New(url, org, username, password, token)
 	if err != nil {
 		if strings.Contains(url, "https://") {
 			httpFallback := strings.Replace(url, "https://", "http://", 1)
-			yard, err = containeryard.New(httpFallback, org, username, password)
+			yard, err = containeryard.New(httpFallback, org, username, password, token)
 		}
 	}
 
 	return yard, err
 }
 
-func CreateRegistry(url, org, username, password string) (RepositoryRegistry, error) {
+func CreateRegistry(url, org, username, password, token string) (RepositoryRegistry, error) {
 	if !strings.HasPrefix(url, "http") {
 		url = "https://" + url
 	}
 
-	yard, err1 := NewContainerYardRegistry(url, org, username, password)
+	yard, err1 := NewContainerYardRegistry(url, org, username, password, token)
 	if err1 == nil {
 		if yard != nil && yard.Ping() == nil {
 			return yard, nil
@@ -73,7 +73,7 @@ func CreateRegistry(url, org, username, password string) (RepositoryRegistry, er
 		}
 	}
 
-	v2, err2 := NewV2Registry(url, org, username, password)
+	v2, err2 := NewV2Registry(url, org, username, password, token)
 	if err2 == nil {
 		if v2 != nil && v2.Ping() == nil {
 			return v2, nil
@@ -82,7 +82,7 @@ func CreateRegistry(url, org, username, password string) (RepositoryRegistry, er
 		}
 	}
 
-	hub, err3 := NewDockerHubRegistry(url, org, username, password)
+	hub, err3 := NewDockerHubRegistry(url, org, username, password, token)
 	if err3 == nil {
 		if hub != nil && hub.Ping() == nil {
 			return hub, nil

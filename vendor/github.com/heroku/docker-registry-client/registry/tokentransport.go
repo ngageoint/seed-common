@@ -11,6 +11,7 @@ type TokenTransport struct {
 	Transport http.RoundTripper
 	Username  string
 	Password  string
+	AuthToken string
 }
 
 func (t *TokenTransport) RoundTrip(req *http.Request) (*http.Response, error) {
@@ -29,11 +30,17 @@ type authToken struct {
 }
 
 func (t *TokenTransport) authAndRetry(authService *authService, req *http.Request) (*http.Response, error) {
-	token, authResp, err := t.auth(authService)
-	if err != nil {
-		return authResp, err
-	}
+	var token string
+	if token != "" {
+		token = t.AuthToken
+	} else {
 
+		gentoken, authResp, err := t.auth(authService)
+		if err != nil {
+			return authResp, err
+		}
+		token = gentoken
+	}
 	retryResp, err := t.retry(req, token)
 	return retryResp, err
 }

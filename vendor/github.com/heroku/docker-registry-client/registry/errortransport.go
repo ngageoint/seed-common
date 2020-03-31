@@ -19,9 +19,16 @@ var _ error = &HttpStatusError{}
 
 type ErrorTransport struct {
 	Transport http.RoundTripper
+	// http.Header
 }
 
 func (t *ErrorTransport) RoundTrip(request *http.Request) (*http.Response, error) {
+	// ADD HEADERSSSSSS
+
+	// for k, v := range t.Header {
+	// 	request.Header[k] = v
+	// }
+
 	resp, err := t.Transport.RoundTrip(request)
 	if err != nil {
 		return resp, err

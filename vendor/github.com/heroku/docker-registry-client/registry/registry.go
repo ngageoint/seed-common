@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+// type TokenHolderTransport struct {
+// 	BearerTo
+// }
+
 type LogfCallback func(format string, args ...interface{})
 
 /*
@@ -69,7 +73,9 @@ func WrapTransport(transport http.RoundTripper, url, username, password string) 
 		Transport: transport,
 		Username:  username,
 		Password:  password,
+		// AuthToken: token,
 	}
+
 	basicAuthTransport := &BasicTransport{
 		Transport: tokenTransport,
 		URL:       url,
@@ -78,7 +84,14 @@ func WrapTransport(transport http.RoundTripper, url, username, password string) 
 	}
 	errorTransport := &ErrorTransport{
 		Transport: basicAuthTransport,
+		// Header:    make(http.Header),
 	}
+
+	// get token here?????
+	// here is pretend token for now
+	// mytoken := "82374872634789324783247832"
+	// errorTransport.Set("Authorization", "Bearer"+mytoken)
+
 	return errorTransport
 }
 
